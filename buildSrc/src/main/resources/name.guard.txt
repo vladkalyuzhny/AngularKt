@@ -1,0 +1,15 @@
+package at.angular
+
+import at.angular.lib.Injectable
+import at.angular.router.*
+
+// todo other interfaces
+@Injectable(
+    providedIn = "root"
+)
+class NameGuard : CanActivate {
+
+    override fun canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): dynamic {
+        return true
+    }
+}

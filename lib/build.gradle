@@ -1,0 +1,24 @@
+apply plugin: "org.jetbrains.kotlin.multiplatform"
+apply plugin: "maven-publish"
+
+kotlin {
+    js()
+    jvm()
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation kotlin('stdlib-common')
+            }
+        }
+        jsMain {
+            dependencies {
+                implementation kotlin('stdlib-js')
+            }
+        }
+        jvmMain {
+            dependencies {
+                implementation kotlin('stdlib')
+            }
+        }
+    }
+}
