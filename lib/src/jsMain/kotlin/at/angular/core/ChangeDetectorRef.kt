@@ -3,7 +3,7 @@
 package at.angular.core
 
 /**
- * @see: https://angular.io/api/core/ChangeDetectorRef
+ * @see: https://angular.dev/api/core/ChangeDetectorRef
  */
 abstract external class ChangeDetectorRef {
     abstract fun markForCheck()

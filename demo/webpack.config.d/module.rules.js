@@ -13,13 +13,6 @@ const moduleRules = [{
         'css-loader'
     ]
 }, {
-    test: /\.s[ac]ss$/,
-    use: [
-        'style-loader',
-        'css-loader',
-        'sass-loader'
-    ]
-}, {
     test: /\.(png|svg|jpe?g|gif)$/,
     use: [
         'file-loader'

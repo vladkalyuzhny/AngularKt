@@ -1,0 +1,3 @@
+.reader { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.reader input { padding: 6px 8px; max-width: 200px; }
+.result { width: 100%; margin: 4px 0 0; }

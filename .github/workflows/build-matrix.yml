@@ -1,0 +1,78 @@
+name: Build matrix (Angular 16-22, JIT + AOT)
+
+# Proves the demo builds across every supported Angular major (floor 16 .. default 22)
+# in both compilation modes. The mode is selected by the task name (any `aot*` task =>
+# AOT, everything else => JIT); the version is the single `-PangularKt.angularVersion`
+# knob. So one cell of the matrix is just one Gradle invocation.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# A new push to the same ref supersedes in-flight matrix runs (14 jobs each — don't pile up).
+concurrency:
+  group: build-matrix-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # JIT: webpack bundles @angular/compiler + zone.js. Fast — no Angular workspace scaffold.
+  jit:
+    name: JIT · Angular ${{ matrix.version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # report every version's result, not just the first failure
+      matrix:
+        version: [16, 17, 18, 19, 20, 21, 22]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # The Gradle wrapper jar/scripts are gitignored in this repo, so install the pinned
+      # version (matches gradle/wrapper/gradle-wrapper.properties) and call `gradle` directly.
+      # setup-gradle also caches the Gradle user home across the matrix.
+      - name: Set up Gradle 8.10.2
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+
+      # Any non-`aot` task builds JIT. The Kotlin Gradle plugin downloads its own Node,
+      # so no separate Node setup is needed here
+      - name: Build demo (JIT) on Angular ${{ matrix.version }}
+        run: gradle :demo:jsBrowserDistribution -PangularKt.angularVersion=${{ matrix.version }} --no-build-cache --stacktrace
+
+  # AOT: scaffolds an Angular workspace (`ng new` pinned to the major), npm-installs, and
+  # AOT-compiles with @angular/build — so @angular/compiler is NOT in the bundle. Heavier
+  # than JIT (a fresh workspace + install per version), but the cells run in parallel.
+  aot:
+    name: AOT · Angular ${{ matrix.version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [16, 17, 18, 19, 20, 21, 22]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle 8.10.2
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+
+      # `aotBuild` carries "aot" in the name, so the plugin resolves the mode to AOT. It
+      # drives the whole pipeline: Kotlin library -> generated .ts bridges -> ng new ->
+      # npm install -> ng build. The KGP-pinned Node (22.22.3) runs the Angular CLI.
+      - name: Build demo (AOT) on Angular ${{ matrix.version }}
+        run: gradle :demo:aotBuild -PangularKt.angularVersion=${{ matrix.version }} --no-build-cache --stacktrace

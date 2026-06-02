@@ -1,0 +1,12 @@
+<p *ngIf="loading" class="muted">Loading…</p>
+<ul class="todos">
+    <li *ngFor="let t of items" [class.done]="t.done" (click)="toggle(t)">
+        <span class="box">{{ t.done ? '☑' : '☐' }}</span>
+        <span class="label">{{t.title}}</span>
+    </li>
+</ul>
+<div class="add">
+    <input #box placeholder="Add a task…"
+           (keyup.enter)="add(box.value); box.value=''">
+    <button mat-raised-button color="primary" (click)="add(box.value); box.value=''">Add</button>
+</div>

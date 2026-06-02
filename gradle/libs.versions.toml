@@ -1,0 +1,31 @@
+[versions]
+kotlin = "2.3.20"
+ksp = "2.3.9"
+coroutines = "1.10.1"
+serializationJson = "1.7.3"
+ktor = "3.1.0"
+handlebars = "4.3.1"
+
+[libraries]
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serializationJson" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
+ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+handlebars = { module = "com.github.jknack:handlebars", version.ref = "handlebars" }
+
+# Plugin marker artifacts — used by the gradle-plugin build so its precompiled script
+# plugin can apply these by id (and reference the Kotlin Gradle plugin classes).
+kotlin-multiplatform-gradle-plugin = { module = "org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin", version.ref = "kotlin" }
+kotlin-serialization-gradle-plugin = { module = "org.jetbrains.kotlin.plugin.serialization:org.jetbrains.kotlin.plugin.serialization.gradle.plugin", version.ref = "kotlin" }
+ksp-gradle-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+
+[plugins]
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+# (kotlin.jvm is applied without a version in :processor — it shares the multiplatform
+# plugin artifact already on the classpath, so a versioned alias would conflict.)
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+# Publishing: lib/processor → Maven Central (vanniktech), plugin → Gradle Plugin Portal.
+vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.30.0" }
+gradle-pluginPublish = { id = "com.gradle.plugin-publish", version = "1.3.1" }

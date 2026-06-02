@@ -3,7 +3,6 @@
 package at.angular.platformBrowser
 
 /**
- * @see: https://angular.io/api/platform-browser/BrowserModule
+ * @see: https://angular.dev/api/platform-browser/BrowserModule
  */
-// todo more details
 external class BrowserModule

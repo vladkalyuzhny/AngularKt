@@ -1,0 +1,16 @@
+/* App-shell: a fixed-height column (toolbar on top, explorer fills the rest). The explorer hosts
+   the mat-sidenav-container, which owns the scrolling — so the nav drawer is full-height and the
+   toolbar never scrolls away. The page background follows the theme. */
+:host { display: flex; flex-direction: column; height: 100vh; background: var(--ak-page-bg); }
+app-explore { flex: 1 1 auto; min-height: 0; }
+
+.spacer { flex: 1 1 auto; }
+mat-toolbar {
+    flex: 0 0 auto;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .12);
+}
+mat-toolbar .logo { height: 28px; width: auto; display: block; }
+mat-toolbar .brand { margin-left: 8px; font-weight: 500; }
+/* Inline GitHub mark in the header action button — inherits the toolbar foreground. */
+mat-toolbar .gh-icon { display: block; }

@@ -1,0 +1,168 @@
+<mat-sidenav-container class="explorer-shell">
+    <mat-sidenav class="drawer" [mode]="$any(navMode)" [opened]="navOpened" (openedChange)="navOpened = $event">
+        <nav class="side">
+            <div class="nav-group">Get started</div>
+            <button class="nav-item"
+                    *ngFor="let f of getStarted; let i = index"
+                    [class.active]="active === i"
+                    (click)="select(i)">
+                <mat-icon>{{f.icon}}</mat-icon>
+                <span>{{f.label}}</span>
+            </button>
+
+            <div class="nav-group">Examples</div>
+            <button class="nav-item"
+                    *ngFor="let f of examples; let i = index"
+                    [class.active]="active === i + gsCount"
+                    (click)="select(i + gsCount)">
+                <mat-icon>{{f.icon}}</mat-icon>
+                <span>{{f.label}}</span>
+            </button>
+        </nav>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="main">
+        <!-- Mobile-only bar: a hamburger that opens the nav drawer + the current section name. -->
+        <div class="mobile-bar">
+            <button mat-icon-button (click)="toggleNav()" aria-label="open navigation">
+                <mat-icon>menu</mat-icon>
+            </button>
+            <span class="mobile-title">{{current.label}}</span>
+        </div>
+
+    <section class="content">
+        <h2>{{current.label}}</h2>
+        <p class="desc">{{current.desc}}</p>
+
+        <!-- Setup -->
+        <div class="setup-body" *ngIf="current.id === 'setup'">
+            <ol class="steps">
+                <li>
+                    <h3>1 · Connect Gradle</h3>
+                    <p>Apply the plugin and add the runtime — the plugin pulls in the Angular toolchain and the <code>@angular/*</code> packages.</p>
+                    <pre class="code-block"><code [innerHTML]="setupGradle"></code></pre>
+                </li>
+                <li>
+                    <h3>2 · Configure the build</h3>
+                    <p>Build assets go in the <code>angularKt</code> Gradle block, and one <code>main</code> entry is picked per mode. The JIT build keeps its webpack tweaks in <code>webpack.config.d/angular-jit.js</code>.</p>
+                    <pre class="code-block"><code [innerHTML]="configGradle"></code></pre>
+                </li>
+                <li>
+                    <h3>3 · Write a component in Kotlin</h3>
+                    <p>The same decorators as Angular — <code>@Component</code>, <code>@NgModule</code> — on Kotlin classes.</p>
+                    <pre class="code-block"><code [innerHTML]="setupComponent"></code></pre>
+                </li>
+            </ol>
+            <p class="setup-foot">
+                Then run it in <strong>JIT</strong> or <strong>AOT</strong> mode — see the two tabs above.
+            </p>
+        </div>
+
+        <!-- JIT mode -->
+        <div class="setup-body" *ngIf="current.id === 'jit'">
+            <p class="mode-run">Entry point — <code>src/jsJit/kotlin/main.kt</code> bootstraps from Kotlin:</p>
+            <pre class="code-block"><code [innerHTML]="jitEntry"></code></pre>
+            <p class="mode-run">Start the dev server:</p>
+            <pre class="code-block shell"><code [innerHTML]="jitRun"></code></pre>
+            <ul class="mode-list">
+                <li>Templates are compiled in the browser by <code>@angular/compiler</code>.</li>
+                <li><code>zone.js</code> + the compiler are prepended via <code>webpack.config.d/angular-jit.js</code>.</li>
+                <li>Default mode: any task that isn't <code>aot*</code> runs JIT.</li>
+            </ul>
+        </div>
+
+        <!-- AOT mode -->
+        <div class="setup-body" *ngIf="current.id === 'aot'">
+            <p class="mode-run">Entry point — <code>src/jsAot/kotlin/main.kt</code> exports <code>main</code>:</p>
+            <pre class="code-block"><code [innerHTML]="aotEntry"></code></pre>
+            <p class="mode-run">Serve ahead-of-time, or build for production:</p>
+            <pre class="code-block shell"><code [innerHTML]="aotServe"></code></pre>
+            <pre class="code-block shell"><code [innerHTML]="aotBuild"></code></pre>
+            <ul class="mode-list">
+                <li>The processor generates <code>main.ts</code>, which calls <code>main</code> with the compiled <code>AppModule</code> bridge.</li>
+                <li>Templates are compiled to JavaScript at build time, with full type-checking.</li>
+                <li>Selected automatically by running an <code>aot*</code> task.</li>
+            </ul>
+        </div>
+
+        <!-- Customize -->
+        <div class="setup-body" *ngIf="current.id === 'customize'">
+            <p class="mode-run">For <strong>AOT</strong>, list global stylesheets and scripts in the <code>angularKt</code> block — they are added to the generated <code>angular.json</code>:</p>
+            <pre class="code-block"><code [innerHTML]="customizeAot"></code></pre>
+            <p class="mode-run">For <strong>JIT</strong>, mirror the same assets in <code>webpack.config.d/angular-jit.js</code> so webpack injects them:</p>
+            <pre class="code-block"><code [innerHTML]="customizeJit"></code></pre>
+            <ul class="mode-list">
+                <li>Each entry is a project-relative path (<code>src/jsMain/resources/custom-theme.css</code>) or a bare npm specifier (<code>highlight.js/styles/github.css</code>).</li>
+                <li>App-wide CSS variables can also live in a <code>&lt;style&gt;</code> block in <code>resources/index.html</code> — it is copied into both builds.</li>
+            </ul>
+        </div>
+
+        <!-- Examples: kept mounted (display toggled) so the single router-outlet below
+             stays in the DOM and the default route activates at bootstrap. -->
+        <div class="examples-body" [style.display]="isExample ? 'block' : 'none'">
+            <div class="code-grid">
+                <div class="code-col">
+                    <div class="code-head"><span class="lang ts">TypeScript</span></div>
+                    <div class="ts-warning" *ngIf="tsUnsupported">
+                        <mat-icon>warning</mat-icon>
+                        <span>Not supported in TypeScript — closest Angular equivalent shown below</span>
+                    </div>
+                    <pre class="code-block"><code [innerHTML]="current.ts"></code></pre>
+                </div>
+                <div class="code-col">
+                    <div class="code-head"><span class="lang kt">Kotlin</span></div>
+                    <pre class="code-block"><code [innerHTML]="current.kt"></code></pre>
+                </div>
+            </div>
+
+            <div class="live">
+                <div class="live-head"><span class="dot"></span> Live — running on Kotlin</div>
+                <div class="live-body">
+                    <app-signal *ngIf="current.id === 'signal'"></app-signal>
+                    <app-sanitizer *ngIf="current.id === 'sanitizer'"></app-sanitizer>
+
+                    <app-child *ngIf="current.id === 'io'"
+                               [childName]="'AngularKt'"
+                               (notify)="onNotify($event)"></app-child>
+                    <p class="reply" *ngIf="current.id === 'io' && reply">Parent received: “{{reply}}”</p>
+
+                    <app-di *ngIf="current.id === 'di'"></app-di>
+
+                    <p class="pipe-line" *ngIf="current.id === 'pipe'">
+                        <code>'AngularKt' | exclaim</code> → <strong>{{ 'AngularKt' | exclaim }}</strong>
+                    </p>
+
+                    <p appHighlight class="dir-demo" *ngIf="current.id === 'directive'">
+                        Hover me — the directive tints this element and toggles its “is-hot” class.
+                    </p>
+
+                    <app-viewchild *ngIf="current.id === 'viewchild'"></app-viewchild>
+                    <app-lifecycle *ngIf="current.id === 'lifecycle'"></app-lifecycle>
+                    <app-ticker    *ngIf="current.id === 'coroutines'"></app-ticker>
+                    <app-form      *ngIf="current.id === 'forms'"></app-form>
+                    <app-ktor      *ngIf="current.id === 'ktor'"></app-ktor>
+                    <app-http      *ngIf="current.id === 'http'"></app-http>
+
+                    <div class="router-play" [style.display]="current.id === 'router' ? 'block' : 'none'">
+                        <nav class="tabs">
+                            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Root</a>
+                            <a routerLink="/branch/leaf" routerLinkActive="active">Nested</a>
+                            <a routerLink="/lazy" routerLinkActive="active">Lazy</a>
+                        </nav>
+                        <div class="outlet"><router-outlet></router-outlet></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+        <footer class="app-footer">
+            <span>© 2020-2026 Developed by Vlad Kalyuzhny</span>
+            <span class="dot">·</span>
+            <a href="https://github.com/vladkalyuzhny/AngularKt" target="_blank" rel="noopener">
+                <svg class="gh" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                Source code
+            </a>
+        </footer>
+    </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AngularKt</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    /* Light theme palette. A single `dark` class on <body> (toggled by AppComponent) swaps
+       these custom properties; they inherit into every component's encapsulated styles. */
+    body {
+      font-family: Roboto, "Helvetica Neue", sans-serif;
+      --ak-page-bg: #fafafa;
+      --ak-text: #202124;
+      --ak-text-muted: #5f6368;
+      --ak-text-faint: #80868b;
+      --ak-border: #e1e4e8;
+      --ak-border-subtle: #eceef0;
+      --ak-surface-2: #fafbfc;
+      --ak-code-bg: #f6f8fa;
+      --ak-code-border: #e1e4e8;
+      --ak-inline-code-bg: #f1f3f4;
+      --ak-link: #1967d2;
+      --ak-hover-bg: #f1f3f4;
+      --ak-active-bg: #e8f0fe;
+      --ak-active-fg: #1967d2;
+      --ak-nav-fg: #3c4043;
+      --ak-nav-group: #9aa0a6;
+      background: var(--ak-page-bg);
+      color: var(--ak-text);
+      transition: background-color .2s ease, color .2s ease;
+    }
+    body.dark {
+      --ak-page-bg: #0f1216;
+      --ak-text: #e6e8eb;
+      --ak-text-muted: #9aa1aa;
+      --ak-text-faint: #7d838c;
+      --ak-border: #2a2f37;
+      --ak-border-subtle: #242931;
+      --ak-surface-2: #1f232a;
+      --ak-code-bg: #14181e;
+      --ak-code-border: #2a2f37;
+      --ak-inline-code-bg: #2a2f37;
+      --ak-link: #6ea8fe;
+      --ak-hover-bg: #232830;
+      --ak-active-bg: #1c2b46;
+      --ak-active-fg: #8ab4f8;
+      --ak-nav-fg: #c2c7cf;
+      --ak-nav-group: #767c85;
+      color-scheme: dark;
+    }
+    /* The "Explore" snippets are highlighted with highlight.js's light github.css (bundled
+       globally). Re-tint its tokens for dark mode so the code stays readable on a dark block. */
+    body.dark .hljs-comment, body.dark .hljs-quote { color: #8b949e; }
+    body.dark .hljs-keyword, body.dark .hljs-selector-tag, body.dark .hljs-literal,
+    body.dark .hljs-section, body.dark .hljs-link, body.dark .hljs-meta { color: #ff7b72; }
+    body.dark .hljs-string, body.dark .hljs-attr, body.dark .hljs-regexp { color: #a5d6ff; }
+    body.dark .hljs-title, body.dark .hljs-name, body.dark .hljs-type,
+    body.dark .hljs-selector-id, body.dark .hljs-selector-class { color: #d2a8ff; }
+    body.dark .hljs-number, body.dark .hljs-symbol, body.dark .hljs-built_in,
+    body.dark .hljs-builtin-name { color: #79c0ff; }
+    body.dark .hljs-variable, body.dark .hljs-template-variable, body.dark .hljs-tag { color: #ffa657; }
+    /* Angular Material's prebuilt theme is light (indigo-pink): its foreground is near-black, which
+       the mat-sidenav-container hands down to all demo content. In dark mode re-point that text — and
+       the non-colored (basic/stroked) button labels — to our token; primary buttons keep their fill. */
+    body.dark .mat-drawer-container { color: var(--ak-text); }
+    body.dark .mat-mdc-button:not(.mat-primary):not(.mat-accent):not(.mat-warn),
+    body.dark .mat-mdc-outlined-button:not(.mat-primary):not(.mat-accent):not(.mat-warn) {
+      color: var(--ak-text);
+      --mdc-text-button-label-text-color: var(--ak-text);
+      --mdc-outlined-button-label-text-color: var(--ak-text);
+      --mdc-outlined-button-outline-color: var(--ak-border);
+    }
+    /* Disabled raised button (e.g. "Loading…") — its faded near-black label is unreadable on dark. */
+    body.dark .mat-mdc-raised-button[disabled] {
+      --mdc-protected-button-disabled-label-text-color: var(--ak-text-faint);
+      --mdc-protected-button-disabled-container-color: var(--ak-hover-bg);
+    }
+    body.dark .mat-mdc-raised-button[disabled] .mdc-button__label { color: var(--ak-text-faint); }
+    /* Router demo: each routed view renders only its own path, as monospace text.
+       Global (not component-scoped) so it reaches into the routed child components. */
+    .route-path { margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1.1rem; }
+  </style>
+</head>
+<body class="mat-typography">
+  <!-- JIT (classic) bootstraps AppComponent here; AOT (standalone) bootstraps RootComponent in
+       <root>. Each mode fills its own host; the other stays empty. -->
+  <app-root></app-root>
+  <root></root>
+  <script src="demo.js"></script>
+</body>
+</html>

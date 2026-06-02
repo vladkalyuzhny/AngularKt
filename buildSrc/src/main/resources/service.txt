@@ -1,6 +1,0 @@
-package app
-
-import at.angular.lib.Injectable
-
-@Injectable("root")
-class NameService

@@ -3,6 +3,6 @@
 package at.angular.common
 
 /**
- * @see: https://angular.io/api/common/CommonModule
+ * @see: https://angular.dev/api/common/CommonModule
  */
 external class CommonModule

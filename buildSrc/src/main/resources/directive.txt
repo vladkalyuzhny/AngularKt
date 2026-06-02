@@ -1,6 +1,0 @@
-package app
-
-import at.angular.lib.Directive
-
-@Directive("[appName]")
-class NameDirective

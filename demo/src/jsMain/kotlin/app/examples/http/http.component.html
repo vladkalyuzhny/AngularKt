@@ -1,0 +1,4 @@
+<p class="tip">💡 {{tip}}</p>
+<button mat-raised-button color="primary" [disabled]="loading" (click)="another()">
+    {{ loading ? 'Loading…' : 'Another tip' }}
+</button>

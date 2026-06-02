@@ -1,0 +1,11 @@
+<div class="sanitizer-demo">
+    <div class="case">
+        <span class="case-label">Raw <code>[innerHTML]</code> — sanitizer strips the SVG:</span>
+        <span class="glyph" [innerHTML]="raw"></span>
+        <em class="hint">↑ blank — Angular removed the markup</em>
+    </div>
+    <div class="case">
+        <span class="case-label">Trusted via <code>bypassSecurityTrustHtml</code>:</span>
+        <span class="glyph" [innerHTML]="safe"></span>
+    </div>
+</div>

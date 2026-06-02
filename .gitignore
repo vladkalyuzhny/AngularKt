@@ -23,8 +23,14 @@ Thumbs.db
 
 # Gradle
 .gradle
-gradle
+gradle/wrapper/gradle-wrapper.jar
 build
 gradlew
 gradlew.bat
 local.properties
+
+# Local publishing secrets (GPG signing key + Central/Portal tokens)
+secrets.properties
+
+# Kotlin compiler cache
+.kotlin

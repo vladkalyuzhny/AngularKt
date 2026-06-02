@@ -1,0 +1,3 @@
+.counter { display: flex; align-items: center; gap: 18px; }
+.value { font-size: 2.4rem; font-weight: 800; min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
+.round { min-width: 44px !important; padding: 0 !important; font-size: 1.3rem !important; }

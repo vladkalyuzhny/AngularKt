@@ -3,12 +3,11 @@
 package at.angular.forms
 
 /**
- * @see: https://angular.io/api/forms/FormsModule
+ * @see: https://angular.dev/api/forms/FormsModule
  */
 external class FormsModule
 
 /**
- * @see: https://angular.io/api/forms/ReactiveFormsModule
+ * @see: https://angular.dev/api/forms/ReactiveFormsModule
  */
-// todo more details
 external class ReactiveFormsModule
