@@ -10,7 +10,7 @@ val angularConfig = AngularKtConfig.from(project)
 val angularNpmVersion = angularConfig.angularNpmVersion
 
 // Global build assets for the AOT build — the plugin adds them to the AOT workspace's angular.json.
-// (The JIT build carries its own theme config in webpack.config.d/angular-jit.js.)
+// (The JIT build carries its own theme config in webpack.config.d/app-jit.js.)
 angularKt {
     aotConfig {
         // AOT bootstraps the standalone RootComponent via `bootstrapApplication`
@@ -19,7 +19,7 @@ angularKt {
         // `--mat-sys-*` styles render unthemed.
         styles.add("@angular/material/prebuilt-themes/indigo-pink.css")
         // highlight.js code theme for the "Explore" snippets — same token colors the JIT build
-        // injects via webpack.config.d/angular-jit.js.
+        // injects via webpack.config.d/app-jit.js.
         styles.add("highlight.js/styles/github.css")
     }
 }
@@ -49,9 +49,9 @@ kotlin {
                 implementation(npm("tslib", "~2.7.0"))
                 // Syntax highlighting for the "Explore" code snippets. The full build
                 // auto-registers the kotlin/typescript grammars; theme CSS is wired per
-                // mode (aotConfig above + webpack.config.d/angular-jit.js).
+                // mode (aotConfig above + webpack.config.d/app-jit.js).
                 implementation(npm("highlight.js", "^11.9.0"))
-                // webpack loaders used by webpack.config.d/angular-jit.js to inject
+                // webpack loaders used by webpack.config.d/app-jit.js to inject
                 // the bundled Angular Material prebuilt theme (.css)
                 implementation(devNpm("style-loader", "~4.0.0"))
                 implementation(devNpm("css-loader", "~7.1.0"))

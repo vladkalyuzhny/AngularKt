@@ -1,6 +1,7 @@
 import at.angular.gradle.AngularKtConfig
 import at.angular.gradle.AngularKtExtension
 import at.angular.gradle.configureAotWorkspace
+import at.angular.gradle.configureJitWebpackConfig
 import at.angular.gradle.configureKotlinJsAndKsp
 import at.angular.gradle.configureNodeAndYarn
 
@@ -22,4 +23,8 @@ configureNodeAndYarn()
 configureKotlinJsAndKsp(config, angularKt)
 if (config.isAot) {
     configureAotWorkspace(config, angularKt)
+} else {
+    // JIT: generate the framework-mandatory webpack.config.d fragment (zone.js + @angular/compiler
+    // entry prepend) so consumers don't hand-copy it into every project.
+    configureJitWebpackConfig()
 }

@@ -1,18 +1,11 @@
-// JIT-only webpack tweaks. Guard on a browser entry being present: in AOT mode the
-// Kotlin/JS target is a `library()`, which has no executable webpack entry, so this
-// whole block is a no-op there (and the real bundle is built by `ng build` in ng-aot/,
-// which never reads this file — keeping @angular/compiler out of the AOT bundle).
+// Project-specific JIT webpack tweaks. The framework-mandatory bit (prepending zone.js +
+// @angular/compiler to the entry) is no longer here — the AngularKt plugin generates it into
+// webpack.config.d/angularkt-jit.generated.js. What stays below are this app's own choices.
+//
+// Guard on a browser entry being present: in AOT mode the Kotlin/JS target is a `library()`,
+// which has no executable webpack entry, so this whole block is a no-op there (and the real
+// bundle is built by `ng build` in ng-aot/, which never reads this file).
 if (config.entry && Array.isArray(config.entry.main)) {
-    // zone.js and @angular/compiler must run before any @angular module is evaluated.
-    // Angular libraries ship in "partial" Ivy format: their `ɵfac = ɵɵngDeclareFactory(...)`
-    // initializers JIT-link at class-definition time and throw if @angular/compiler isn't
-    // loaded yet; zone.js must patch the environment first too.
-    //
-    // This can't be done from Kotlin main(): the entry module's `@angular/*` imports are
-    // ES modules, so they evaluate (and throw) before main()'s body runs. Prepending these
-    // as their own entries makes webpack evaluate them first.
-    config.entry.main = ['zone.js', '@angular/compiler', ...config.entry.main];
-
     // Bundle Angular Material's prebuilt theme: style-loader + css-loader inject it into
     // the document at runtime, so no external stylesheet is needed (Material Icons + Roboto
     // fonts still load from a CDN <link> in index.html). The theme is only resolvable
@@ -27,4 +20,10 @@ if (config.entry && Array.isArray(config.entry.main)) {
     // condition needed), injected by the style-loader/css-loader rule. Mirrors aotConfig.styles
     // in build.gradle.kts so JIT and AOT render the snippets identically.
     config.entry.main.push('highlight.js/styles/github.css');
+
+    // SPA deep links: the router uses real paths (`/signal`, `/router/branch/leaf`), so a refresh
+    // on one of them must serve index.html instead of 404ing. `ng serve` does this by default; the
+    // JIT webpack-dev-server needs it spelled out. (No-op when devServer is absent, e.g. a build.)
+    config.devServer = config.devServer || {};
+    config.devServer.historyApiFallback = true;
 }
