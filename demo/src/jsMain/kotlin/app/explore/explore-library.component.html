@@ -44,7 +44,7 @@
                 </li>
                 <li>
                     <h3>2 · Configure the build</h3>
-                    <p>Build assets go in the <code>angularKt</code> Gradle block, and one <code>main</code> entry is picked per mode. The JIT build keeps its webpack tweaks in <code>webpack.config.d/angular-jit.js</code>.</p>
+                    <p>One <code>main</code> entry is picked per mode — wire in only that mode's source directory (each holds its own <code>main.kt</code>).</p>
                     <pre class="code-block"><code [innerHTML]="configGradle"></code></pre>
                 </li>
                 <li>
@@ -127,6 +127,7 @@
                     <p class="reply" *ngIf="current.id === 'io' && reply">Parent received: “{{reply}}”</p>
 
                     <app-di *ngIf="current.id === 'di'"></app-di>
+                    <app-koin *ngIf="current.id === 'koin'"></app-koin>
 
                     <p class="pipe-line" *ngIf="current.id === 'pipe'">
                         <code>'AngularKt' | exclaim</code> → <strong>{{ 'AngularKt' | exclaim }}</strong>

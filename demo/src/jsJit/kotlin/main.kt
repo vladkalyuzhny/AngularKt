@@ -1,4 +1,5 @@
 import app.BootstrapModule
+import app.startAppKoin
 import at.angular.generated.registerAngularKt
 import at.angular.platformBrowserDynamic.platformBrowserDynamic
 
@@ -9,6 +10,8 @@ import at.angular.platformBrowserDynamic.platformBrowserDynamic
  * applies the `@Component`/`@NgModule` decorators first — the JIT counterpart to AOT's compiled bridges.
  */
 fun main() {
+    // Bring up the Koin container before Angular renders (see the "Koin DI" example).
+    startAppKoin()
     registerAngularKt()
     platformBrowserDynamic(undefined)
         .bootstrapModule(BootstrapModule::class.js)

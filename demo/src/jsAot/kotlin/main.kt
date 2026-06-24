@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalJsExport::class)
 
 import app.appProviders
+import app.startAppKoin
 import at.angular.core.EnvironmentProviders
 import at.angular.platformBrowser.bootstrapApplication
 import at.angular.utils.jsObject
@@ -13,6 +14,8 @@ import at.angular.utils.jsObject
  */
 @JsExport
 fun main(root: JsClass<*>, providers: Array<EnvironmentProviders>) {
+    // Bring up the Koin container before Angular renders (see the "Koin DI" example).
+    startAppKoin()
     bootstrapApplication(
         rootComponent = root,
         options = jsObject {

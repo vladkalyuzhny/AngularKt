@@ -60,6 +60,8 @@ kotlin {
                 // Ktor as the HTTP client (alternative to Angular HttpClient).
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.js)
+                // Koin as a pure-Kotlin DI container (alternative to Angular's injector).
+                implementation(libs.koin.core)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
             }

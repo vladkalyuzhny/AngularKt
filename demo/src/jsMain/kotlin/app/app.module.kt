@@ -6,6 +6,7 @@ import app.examples.directive.HighlightDirective
 import app.examples.forms.FormComponent
 import app.examples.http.HttpComponent
 import app.examples.io.ChildComponent
+import app.examples.koin.KoinDemoComponent
 import app.examples.ktor.KtorComponent
 import app.examples.lifecycle.LifecycleComponent
 import app.examples.lifecycle.OnPushComponent
@@ -42,7 +43,7 @@ import at.angular.router.RouterModule
         HttpComponent::class, TickerComponent::class, TreeComponent::class,
         FormComponent::class, HighlightDirective::class,
         SignalComponent::class, ExclaimPipe::class, ExploreLibraryComponent::class,
-        DiDemoComponent::class, ViewChildDemoComponent::class,
+        DiDemoComponent::class, KoinDemoComponent::class, ViewChildDemoComponent::class,
         BranchComponent::class, LeafComponent::class,
         LifecycleComponent::class, OnPushComponent::class,
         SanitizerComponent::class

@@ -60,6 +60,14 @@ internal fun buildExamples(): Array<Feature> = arrayOf(
         highlightTs(DI_TS), highlightKotlin(DI_KT),
     ),
     Feature(
+        "koin", "Koin DI", "hub",
+        "Prefer a pure-Kotlin DI container over Angular's injector? A plain class — no @Injectable — " +
+            "is registered in a Koin module { single { … } } and resolved with by inject(). Koin is " +
+            "started once at bootstrap; the component implements KoinComponent and pulls its service " +
+            "straight from the global container, no @angular/core involved.",
+        highlightTs(KOIN_TS), highlightKotlin(KOIN_KT),
+    ),
+    Feature(
         "router", "Router", "alt_route",
         "Routes are declared with @RoutingModule, compiled to provideRouter(routes). Nested routes " +
             "point at another @RoutingModule class the processor inlines recursively, each level " +

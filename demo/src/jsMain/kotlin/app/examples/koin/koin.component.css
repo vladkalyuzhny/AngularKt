@@ -1,0 +1,14 @@
+.koin-quote {
+    margin: 0 0 0.6rem;
+    font-style: italic;
+}
+.koin-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+.koin-row .src {
+    color: var(--ak-text-faint);
+    font-size: 0.82rem;
+}

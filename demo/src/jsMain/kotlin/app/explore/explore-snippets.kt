@@ -47,6 +47,7 @@ kotlin {
 
 private val SETUP_COMPONENT = """
 // AppComponent.kt
+@JsExport
 @Component(
     selector = "app-root",
     template = "<h1>Hello, {{name}}!</h1>",
@@ -66,13 +67,6 @@ class AppModule
 private val CONFIG_GRADLE = """
 // build.gradle.kts
 val angular = AngularKtConfig.from(project)
-
-angularKt {
-    aotConfig {
-        // Angular Material's prebuilt theme (AOT build)
-        styles.add("@angular/material/prebuilt-themes/indigo-pink.css")
-    }
-}
 
 kotlin.sourceSets.jsMain {
     // one main per mode — wire in only that mode's source dir (each holds its own main.kt)
@@ -142,6 +136,7 @@ export class CounterComponent {
 """.trim()
 
 internal val SIGNAL_KT = """
+@JsExport
 @Component(
     selector = "app-counter",
     template = $TQ
@@ -175,6 +170,7 @@ export class ChildComponent {
 """.trim()
 
 internal val IO_KT = """
+@JsExport
 @Component(
     selector = "app-child",
     template = "<button (click)='ping()'>Wave back 👋</button>",
@@ -206,14 +202,51 @@ export class DiComponent {
 """.trim()
 
 internal val DI_KT = """
+@JsExport
 @Injectable(providedIn = "root")
 class GreetingService {
     fun greet() = "Welcome back!"
 }
 
+@JsExport
 @Component(selector = "app-di", template = "{{message}}")
 class DiComponent(greeting: GreetingService) {
     val message = greeting.greet()
+}
+""".trim()
+
+internal val KOIN_TS = """
+// Angular has no Koin — this is the TS shape Koin's Kotlin DSL replaces:
+@Injectable({ providedIn: 'root' })
+export class QuoteService {
+  next() { return '…'; }
+}
+
+@Component({ selector: 'app-koin', template: `{{ quote }}` })
+export class KoinComponent {
+  quote: string;
+  constructor(private quotes: QuoteService) {
+    this.quote = quotes.next();
+  }
+}
+""".trim()
+
+internal val KOIN_KT = """
+// a plain class — no @Injectable, framework-agnostic
+class QuoteService {
+    fun next() = "…"
+}
+
+// register it in a Koin module, started once at bootstrap
+val appKoinModule = module {
+    single { QuoteService() }
+}
+
+@JsExport
+@Component(selector = "app-koin", template = "{{quote}}")
+class KoinComponent : KoinComponent {
+    private val quotes: QuoteService by inject()
+    var quote = quotes.next()
 }
 """.trim()
 
@@ -246,6 +279,7 @@ export class ExclaimPipe implements PipeTransform {
 """.trim()
 
 internal val PIPE_KT = """
+@JsExport
 @Pipe(name = "exclaim")
 class ExclaimPipe {
     fun transform(value: String): String = value + "!!!"
@@ -265,6 +299,7 @@ export class HighlightDirective {
 """.trim()
 
 internal val DIRECTIVE_KT = """
+@JsExport
 @Directive(selector = "[appHighlight]")
 class HighlightDirective(private val el: ElementRef) {
     @HostBinding("class.is-hot")
@@ -290,6 +325,7 @@ export class ReaderComponent {
 """.trim()
 
 internal val VIEWCHILD_KT = """
+@JsExport
 @Component(
     selector = "app-reader",
     template = $TQ
@@ -321,6 +357,7 @@ export class ClockComponent implements OnInit, OnDestroy {
 """.trim()
 
 internal val COROUTINES_KT = """
+@JsExport
 @Component(selector = "app-clock", template = "{{elapsed}}")
 class ClockComponent : OnInit {
     var elapsed = 0
@@ -355,6 +392,7 @@ export class FormComponent implements OnInit {
 """.trim()
 
 internal val FORMS_KT = """
+@JsExport
 @Component(
     selector = "app-form",
     template = "<input [formControl]='name'><p>{{message}}</p>",
@@ -387,6 +425,7 @@ export class TodoService {
 """.trim()
 
 internal val KTOR_KT = """
+@JsExport
 @Injectable(providedIn = "root")
 class TodoService(private val client: HttpClient) {
 
@@ -410,6 +449,7 @@ export class TipComponent {
 """.trim()
 
 internal val HTTP_KT = """
+@JsExport
 @Component(selector = "app-tip", template = "{{tip}}")
 class TipComponent(private val http: HttpClient) {
     var tip = ""
@@ -465,6 +505,7 @@ class BranchRoutes
 class LazyRoutes
 
 // The branch is a shell: it renders the nested outlet so only the leaf shows a path.
+@JsExport
 @Component(selector = "app-branch", template = "<router-outlet></router-outlet>")
 class BranchComponent
 """.trim()
@@ -487,6 +528,7 @@ export class OnPushComponent implements OnChanges {
 """.trim()
 
 internal val LIFECYCLE_KT = """
+@JsExport
 @Component(
     selector = "app-onpush",
     templateUrl = "./onpush.component.html",

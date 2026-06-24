@@ -50,11 +50,12 @@ internal fun Project.configureAotWorkspace(config: AngularKtConfig, ext: Angular
     // This picks up @angular/* plus zone.js/rxjs/tslib. Dedupe by name (the same dep can appear in
     // several configurations) and fail loud on a missing version rather than letting null leak into
     // package.json. Read lazily through a Provider (execution-graph time).
+    val jitOnlyNpmDeps = setOf("@angular/compiler", "@angular/platform-browser-dynamic")
     fun aotNpmDeps(): Map<String, String> =
         configurations.asSequence()
             .flatMap { it.dependencies.asSequence() }
             .filterIsInstance<NpmDependency>()
-            .filter { it.scope == NpmDependency.Scope.NORMAL && it.name != "@angular/compiler" }
+            .filter { it.scope == NpmDependency.Scope.NORMAL && it.name !in jitOnlyNpmDeps }
             .groupBy { it.name }
             .mapValues { (name, deps) ->
                 deps.firstNotNullOfOrNull { it.version.takeIf(String::isNotBlank) }

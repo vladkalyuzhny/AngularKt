@@ -4,6 +4,7 @@ ksp = "2.3.9"
 coroutines = "1.10.1"
 serializationJson = "1.7.3"
 ktor = "3.1.0"
+koin = "4.1.0"
 handlebars = "4.3.1"
 
 [libraries]
@@ -11,6 +12,7 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serializationJson" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 handlebars = { module = "com.github.jknack:handlebars", version.ref = "handlebars" }
 
