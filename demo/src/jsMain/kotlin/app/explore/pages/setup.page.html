@@ -1,0 +1,20 @@
+<h2>{{ feature.label }}</h2>
+<p class="desc">{{ feature.desc }}</p>
+
+<div class="setup-body">
+    <ol class="steps">
+        <li>
+            <h3>1 · Connect Gradle</h3>
+            <p>Apply the plugin and add the runtime — the plugin pulls in the Angular toolchain and the <code>&#64;angular/*</code> packages.</p>
+            <pre class="code-block"><code [innerHTML]="setupGradle"></code></pre>
+        </li>
+        <li>
+            <h3>2 · Write a component in Kotlin</h3>
+            <p>The same decorators as Angular — <code>&#64;Component</code>, <code>&#64;NgModule</code> — on Kotlin classes.</p>
+            <pre class="code-block"><code [innerHTML]="setupComponent"></code></pre>
+        </li>
+    </ol>
+    <p class="setup-foot">
+        Then run it in <strong>JIT</strong> or <strong>AOT</strong> mode — see the two tabs in the nav.
+    </p>
+</div>

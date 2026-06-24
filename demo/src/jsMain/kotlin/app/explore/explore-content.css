@@ -1,0 +1,15 @@
+/* Base styles shared by every routed content page (the example panel and the Get-started pages):
+   the page heading, the lead paragraph, and the code blocks. Each page pulls this in via styleUrls
+   alongside its own page-specific stylesheet. */
+h2 { margin: 0 0 6px; font-size: 1.5rem; font-weight: 600; }
+.desc { margin: 0 0 22px; color: var(--ak-text-muted); line-height: 1.55; max-width: 72ch; }
+
+.code-block {
+    margin: 0; padding: 14px 16px;
+    background: var(--ak-code-bg); border: 1px solid var(--ak-code-border); border-radius: 10px;
+    overflow-x: auto; flex: 1 1 auto;
+}
+.code-block code {
+    font-family: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.76rem; line-height: 1.55; white-space: pre; color: var(--ak-text);
+}

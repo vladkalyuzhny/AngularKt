@@ -11,14 +11,33 @@ import app.examples.ktor.KtorComponent
 import app.examples.lifecycle.LifecycleComponent
 import app.examples.lifecycle.OnPushComponent
 import app.examples.pipe.ExclaimPipe
+import app.examples.routing.branch.BranchComponent
+import app.examples.routing.leaf.LeafComponent
+import app.examples.routing.tree.TreeComponent
 import app.examples.sanitizer.SanitizerComponent
 import app.examples.signal.SignalComponent
 import app.examples.standalone.BadgeComponent
 import app.examples.viewchild.ViewChildDemoComponent
+import app.explore.ExamplePanelComponent
 import app.explore.ExploreLibraryComponent
-import app.routing.branch.BranchComponent
-import app.routing.leaf.LeafComponent
-import app.routing.tree.TreeComponent
+import app.explore.pages.AotPageComponent
+import app.explore.pages.CoroutinesPageComponent
+import app.explore.pages.CustomizePageComponent
+import app.explore.pages.DiPageComponent
+import app.explore.pages.DirectivePageComponent
+import app.explore.pages.FormsPageComponent
+import app.explore.pages.HttpPageComponent
+import app.explore.pages.IoPageComponent
+import app.explore.pages.JitPageComponent
+import app.explore.pages.KoinPageComponent
+import app.explore.pages.KtorPageComponent
+import app.explore.pages.LifecyclePageComponent
+import app.explore.pages.PipePageComponent
+import app.explore.pages.RouterPageComponent
+import app.explore.pages.SanitizerPageComponent
+import app.explore.pages.SetupPageComponent
+import app.explore.pages.SignalPageComponent
+import app.explore.pages.ViewChildPageComponent
 import at.angular.common.CommonModule
 import at.angular.core.NgModule
 import at.angular.forms.ReactiveFormsModule
@@ -46,7 +65,16 @@ import at.angular.router.RouterModule
         DiDemoComponent::class, KoinDemoComponent::class, ViewChildDemoComponent::class,
         BranchComponent::class, LeafComponent::class,
         LifecycleComponent::class, OnPushComponent::class,
-        SanitizerComponent::class
+        SanitizerComponent::class,
+        // The shared example frame + one routed page component per left-nav entry.
+        ExamplePanelComponent::class,
+        SetupPageComponent::class, JitPageComponent::class, AotPageComponent::class,
+        CustomizePageComponent::class,
+        DiPageComponent::class, KoinPageComponent::class, RouterPageComponent::class,
+        SignalPageComponent::class, FormsPageComponent::class, ViewChildPageComponent::class,
+        IoPageComponent::class, LifecyclePageComponent::class, DirectivePageComponent::class,
+        PipePageComponent::class, SanitizerPageComponent::class, HttpPageComponent::class,
+        CoroutinesPageComponent::class, KtorPageComponent::class
     ],
     imports = [
         // CommonModule supplies *ngIf/*ngFor to the declared components — under a standalone

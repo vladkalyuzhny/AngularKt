@@ -1,4 +1,4 @@
-package app.routing.lazy
+package app.examples.routing.lazy
 
 import at.angular.router.Route
 import at.angular.router.RoutingModule

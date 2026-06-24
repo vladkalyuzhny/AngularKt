@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalJsExport::class)
 
-package app.routing.lazy
+package app.examples.routing.lazy
 
 import at.angular.core.Component
 import at.angular.core.OnInit

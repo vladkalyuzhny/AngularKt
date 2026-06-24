@@ -18,8 +18,8 @@ private const val TQ = "\"\"\""
 
 internal fun setupGradleHtml(): String = highlightKotlin(SETUP_GRADLE)
 internal fun setupComponentHtml(): String = highlightKotlin(SETUP_COMPONENT)
-internal fun configGradleHtml(): String = highlightKotlin(CONFIG_GRADLE)
 internal fun jitEntryHtml(): String = highlightKotlin(JIT_ENTRY)
+internal fun jitWebpackHtml(): String = highlightTs(JIT_WEBPACK)
 internal fun aotEntryHtml(): String = highlightKotlin(AOT_ENTRY)
 internal fun customizeAotHtml(): String = highlightKotlin(CUSTOMIZE_AOT)
 internal fun customizeJitHtml(): String = highlightTs(CUSTOMIZE_JIT)
@@ -64,22 +64,23 @@ class AppComponent {
 class AppModule
 """.trim()
 
-private val CONFIG_GRADLE = """
-// build.gradle.kts
-val angular = AngularKtConfig.from(project)
-
-kotlin.sourceSets.jsMain {
-    // one main per mode — wire in only that mode's source dir (each holds its own main.kt)
-    kotlin.srcDir(if (angular.isAot) "src/jsAot/kotlin" else "src/jsJit/kotlin")
-}
-""".trim()
-
 private val JIT_ENTRY = """
 // src/jsJit/kotlin/main.kt — classic platformBrowserDynamic bootstrap, the textbook JIT path
 fun main() {
     registerAngularKt()  // KSP-generated: applies your @Component/@NgModule decorators
     // root @RoutingModule → RouterModule.forRoot(routes); BootstrapModule just imports AppRoutingModule
     platformBrowserDynamic(undefined).bootstrapModule(BootstrapModule::class.js)
+}
+""".trim()
+
+private val JIT_WEBPACK = """
+// webpack.config.d/angular-jit.js — REQUIRED for JIT
+// zone.js + @angular/compiler must evaluate before any @angular module: Angular
+// libraries ship in partial-Ivy format and JIT-link at class-definition time, so
+// they throw if the compiler isn't loaded yet. main()'s body runs too late (its
+// ES imports evaluate first), so prepend them as their own webpack entries.
+if (config.entry && Array.isArray(config.entry.main)) {
+    config.entry.main = ['zone.js', '@angular/compiler', ...config.entry.main];
 }
 """.trim()
 
@@ -146,6 +147,7 @@ internal val SIGNAL_KT = """
     $TQ,
 )
 class CounterComponent {
+    private val lifecycle = LifecycleScope()
     private val state = MutableStateFlow(0)
 
     // a Kotlin StateFlow exposed as a real Angular signal
@@ -244,7 +246,7 @@ val appKoinModule = module {
 
 @JsExport
 @Component(selector = "app-koin", template = "{{quote}}")
-class KoinComponent : KoinComponent {
+class KoinDemoComponent : KoinComponent {
     private val quotes: QuoteService by inject()
     var quote = quotes.next()
 }
@@ -427,10 +429,12 @@ export class TodoService {
 internal val KTOR_KT = """
 @JsExport
 @Injectable(providedIn = "root")
-class TodoService(private val client: HttpClient) {
+class TodoService {
+    private val client = HttpClient(Js)
 
-    // a plain suspend function + kotlinx.serialization — no Observable
-    suspend fun load(): List<Todo> =
+    // a plain suspend function + kotlinx.serialization — no Observable.
+    // Note: @JsExport can't export a suspend fun
+    internal suspend fun load(): List<Todo> =
         client.get("/todos").body()
 }
 """.trim()
@@ -453,11 +457,12 @@ internal val HTTP_KT = """
 @Component(selector = "app-tip", template = "{{tip}}")
 class TipComponent(private val http: HttpClient) {
     var tip = ""
+    private val scope = LifecycleScope()
 
     fun another() {
         scope.launch {
             // Angular's HttpClient Observable, awaited as a coroutine
-            val todo = http.get<Todo>("/todos/" + rand())
+            val todo = http.get<Todo>("/todos/" + rand()).await()
             tip = todo.title
         }
     }

@@ -1,6 +1,6 @@
-package app.routing.branch
+package app.examples.routing.branch
 
-import app.routing.leaf.LeafComponent
+import app.examples.routing.leaf.LeafComponent
 import at.angular.router.Route
 import at.angular.router.RoutingModule
 

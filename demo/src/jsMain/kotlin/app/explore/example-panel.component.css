@@ -1,0 +1,35 @@
+/* The presentational frame every Examples page shares: the TypeScript-vs-Kotlin code grid and the
+   live-demo card. The live demo itself is projected in via <ng-content>. */
+.code-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.code-col { min-width: 0; display: flex; flex-direction: column; }
+.code-head {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    margin-bottom: 7px; color: var(--ak-text-faint);
+}
+.lang { padding: 2px 7px; border-radius: 6px; color: #fff; font-size: 0.66rem; }
+.lang.ts { background: #3178c6; }
+.lang.kt { background: #7f52ff; }
+.ts-warning {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px; padding: 7px 12px;
+    background: #fff8e1; border: 1px solid #fde293; border-radius: 8px;
+    color: #8a6d00; font-size: 0.78rem; font-weight: 500; line-height: 1.35;
+}
+.ts-warning mat-icon { font-size: 18px; width: 18px; height: 18px; color: #f9a825; flex: none; }
+
+.live { border: 1px solid var(--ak-border); border-radius: 12px; overflow: hidden; }
+.live-head {
+    display: flex; align-items: center; gap: 9px;
+    padding: 10px 16px; background: var(--ak-surface-2); border-bottom: 1px solid var(--ak-border-subtle);
+    font-size: 0.78rem; font-weight: 600; color: var(--ak-text-muted);
+}
+.live-head .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #34a853; box-shadow: 0 0 0 3px rgba(52,168,83,.18);
+}
+.live-body { padding: 22px 20px; }
+
+@media (max-width: 900px) {
+    .code-grid { grid-template-columns: 1fr; }
+}

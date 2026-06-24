@@ -1,0 +1,25 @@
+<h2>{{ feature.label }}</h2>
+<p class="desc">{{ feature.desc }}</p>
+
+<div class="code-grid">
+    <div class="code-col">
+        <div class="code-head"><span class="lang ts">TypeScript</span></div>
+        <div class="ts-warning" *ngIf="tsUnsupported">
+            <mat-icon>warning</mat-icon>
+            <span>Not supported in TypeScript — closest Angular equivalent shown below</span>
+        </div>
+        <pre class="code-block"><code [innerHTML]="feature.ts"></code></pre>
+    </div>
+    <div class="code-col">
+        <div class="code-head"><span class="lang kt">Kotlin</span></div>
+        <pre class="code-block"><code [innerHTML]="feature.kt"></code></pre>
+    </div>
+</div>
+
+<div class="live">
+    <div class="live-head"><span class="dot"></span> Live — running on Kotlin</div>
+    <div class="live-body">
+        <!-- The page's live demo is projected here. -->
+        <ng-content></ng-content>
+    </div>
+</div>

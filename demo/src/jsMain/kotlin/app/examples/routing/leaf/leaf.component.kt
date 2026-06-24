@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalJsExport::class)
 
-package app.routing.leaf
+package app.examples.routing.leaf
 
 import at.angular.core.Component
 

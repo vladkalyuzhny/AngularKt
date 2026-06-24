@@ -17,6 +17,7 @@
     </a>
 </mat-toolbar>
 
-<!-- Everything below the toolbar lives in the explorer: the responsive nav drawer, the content,
-     the footer, and the single <router-outlet> (inside its "Router" feature, kept mounted). -->
+<!-- Everything below the toolbar lives in the explorer shell: the responsive nav drawer, the footer,
+     and the <router-outlet> that renders the selected page. Each left-nav entry is a real route
+     (`/setup`, `/signal`, …), so the address bar tracks the open tab and deep links work. -->
 <app-explore></app-explore>

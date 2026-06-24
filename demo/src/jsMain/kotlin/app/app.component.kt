@@ -35,7 +35,6 @@ class AppComponent(private val el: ElementRef) : OnInit {
             else -> window.matchMedia("(prefers-color-scheme: dark)").matches == true
         }
         applyTheme()
-        println("[AngularKt] ngOnInit, dark=$dark")
     }
 
     /** Flip light ⇄ dark, persist the choice, and reflect it onto `<body>`. */

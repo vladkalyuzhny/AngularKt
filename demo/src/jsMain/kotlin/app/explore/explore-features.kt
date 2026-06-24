@@ -5,10 +5,10 @@ package app.explore
 /**
  * One entry in the explorer's left nav: a short description plus a TypeScript-vs-Kotlin
  * code comparison. `ts`/`kt` hold pre-highlighted HTML (see [highlightTs]/[highlightKotlin])
- * bound with `[innerHTML]`; `@JsExport` keeps the property names un-mangled so the template
- * can read `f.label`, `current.ts`, etc. `id` is what the template switches the live demo on
- * (`*ngIf="current.id === '…'"`). The two "Get started" sections leave `ts`/`kt` empty and
- * render bespoke setup panels instead.
+ * bound with `[innerHTML]`; `@JsExport` keeps the property names un-mangled so the templates
+ * can read `feature.label`, `feature.ts`, etc. `id` doubles as the route path (`/signal`) and is
+ * how a page looks itself up via [featureById]. The two "Get started" sections leave `ts`/`kt`
+ * empty and render bespoke setup pages instead.
  */
 @JsExport
 class Feature(
@@ -19,6 +19,14 @@ class Feature(
     val ts: String,
     val kt: String,
 )
+
+/** The catalog, built once. The shell reads these for its nav; each page reads its own [feature]. */
+internal val GET_STARTED: Array<Feature> = buildGetStarted()
+internal val EXAMPLES: Array<Feature> = buildExamples()
+
+/** Look up a catalog entry by its id (the same string used as its route path). */
+internal fun featureById(id: String): Feature =
+    GET_STARTED.firstOrNull { it.id == id } ?: EXAMPLES.first { it.id == id }
 
 /** The "Get started" group — Setup plus the two run modes, shown above Examples. */
 internal fun buildGetStarted(): Array<Feature> = arrayOf(
