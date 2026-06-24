@@ -39,7 +39,7 @@
             <ol class="steps">
                 <li>
                     <h3>1 · Connect Gradle</h3>
-                    <p>Apply the plugin and add the runtime — the plugin pulls in the Angular toolchain and the <code>@angular/*</code> packages.</p>
+                    <p>Apply the plugin and add the runtime — the plugin pulls in the Angular toolchain and the <code>&#64;angular/*</code> packages.</p>
                     <pre class="code-block"><code [innerHTML]="setupGradle"></code></pre>
                 </li>
                 <li>
@@ -49,7 +49,7 @@
                 </li>
                 <li>
                     <h3>3 · Write a component in Kotlin</h3>
-                    <p>The same decorators as Angular — <code>@Component</code>, <code>@NgModule</code> — on Kotlin classes.</p>
+                    <p>The same decorators as Angular — <code>&#64;Component</code>, <code>&#64;NgModule</code> — on Kotlin classes.</p>
                     <pre class="code-block"><code [innerHTML]="setupComponent"></code></pre>
                 </li>
             </ol>
@@ -65,7 +65,7 @@
             <p class="mode-run">Start the dev server:</p>
             <pre class="code-block shell"><code [innerHTML]="jitRun"></code></pre>
             <ul class="mode-list">
-                <li>Templates are compiled in the browser by <code>@angular/compiler</code>.</li>
+                <li>Templates are compiled in the browser by <code>&#64;angular/compiler</code>.</li>
                 <li><code>zone.js</code> + the compiler are prepended via <code>webpack.config.d/angular-jit.js</code>.</li>
                 <li>Default mode: any task that isn't <code>aot*</code> runs JIT.</li>
             </ul>
