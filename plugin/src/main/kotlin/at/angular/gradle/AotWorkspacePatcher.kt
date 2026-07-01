@@ -17,7 +17,7 @@ internal object AotWorkspacePatcher {
         globalStyles: List<String>,
         globalScripts: List<String>,
     ) {
-        patchAngularJson(ngAot, globalStyles, globalScripts)
+        patchAngularJson(ngAot, tsModule, globalStyles, globalScripts)
         patchPackageJson(ngAot, tsModule, ngDeps, libRelativePath)
         patchTsconfigApp(ngAot)
         patchTsconfig(ngAot)
@@ -25,7 +25,12 @@ internal object AotWorkspacePatcher {
 
     /** angular.json — build the generated entry, resolve the file: lib, lift budgets, add assets. */
     @Suppress("UNCHECKED_CAST")
-    private fun patchAngularJson(ngAot: File, globalStyles: List<String>, globalScripts: List<String>) {
+    private fun patchAngularJson(
+        ngAot: File,
+        tsModule: String,
+        globalStyles: List<String>,
+        globalScripts: List<String>,
+    ) {
         val file = File(ngAot, "angular.json")
         val angular = file.readJsonObject()
         // `ng new` scaffolds exactly one project; take it.
@@ -44,6 +49,15 @@ internal object AotWorkspacePatcher {
             opts.remove("main")
             opts["browser"] = "src/generated/main.ts"
             opts["externalDependencies"] = listOf("ws")
+            // Live reload: keep the Kotlin library OUT of the dev server's Vite dependency
+            // pre-bundling. Pre-bundled deps are cached behind a `?v=<hash>` and are NOT re-optimized
+            // when the symlinked file: lib's bytes change — so a Kotlin edit would reload the page but
+            // serve the stale vendor chunk. Excluding it bundles the lib into the app graph, where an
+            // (aotSync-triggered) rebuild re-reads it through the symlink and the new bytes reach the
+            // browser. Only the esbuild/Vite `:application` builder pre-bundles; the webpack builder
+            // (Angular 16) doesn't, so this is scoped to that branch.
+            val serveOpts = project.obj("architect").obj("serve").obj("options")
+            serveOpts["prebundle"] = mapOf("exclude" to listOf(tsModule))
         } else {
             opts.remove("browser")
             opts["main"] = "src/generated/main.ts"
@@ -60,7 +74,29 @@ internal object AotWorkspacePatcher {
         // appended to whatever `ng new` scaffolded (`styles: ["src/styles.css"]`), deduped.
         appendAssets(opts, "styles", globalStyles)
         appendAssets(opts, "scripts", globalScripts)
+        registerHashAsset(opts)
         file.writeJson(angular)
+    }
+
+    /**
+     * List the live-reload hash stamp (`src/generated/build-stamp.txt`, written by `aotHashStamp`)
+     * as a build asset. The dev server watches asset inputs, so restamping it on a Kotlin edit makes
+     * `ng serve` rebuild and re-pull the fresh library through the symlink. The object form works for
+     * both builders; it's harmlessly served at the web root. Appended idempotently (re-scaffold
+     * regenerates angular.json from scratch, but guard anyway).
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun registerHashAsset(opts: MutableMap<String, Any?>) {
+        val asset = mapOf(
+            "glob" to "build-stamp.txt",
+            "input" to "src/generated",
+            "output" to "/"
+        )
+        val assets = (opts["assets"] as? List<Any?>)?.toMutableList() ?: mutableListOf()
+        if (assets.none { (it as? Map<String, Any?>)?.get("glob") == "build-stamp.txt" }) {
+            assets.add(asset)
+        }
+        opts["assets"] = assets
     }
 
     /** Append normalized [assets] to the build option [key] (`styles`/`scripts`), keeping order, no dups. */

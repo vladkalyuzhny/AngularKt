@@ -1,11 +1,19 @@
 package at.angular.gradle
 
+import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.Sync
+import org.gradle.api.tasks.TaskAction
+import java.security.MessageDigest
 
 /**
  * Materialize the compiled Kotlin/JS library into a stable directory the AOT workspace links as a
@@ -53,6 +61,43 @@ abstract class CopyAotLibraryTask : Sync() {
                 )
             )
         }
+    }
+}
+
+/**
+ * Stamp a content hash of the compiled Kotlin library into a tiny file inside the workspace `src/`,
+ * so editing Kotlin can live-reload the AOT dev server. The library itself lives behind the `file:`
+ * dep under `node_modules` (via a symlink), which `ng serve`'s watcher ignores — so a Kotlin-only
+ * change would never trigger a rebuild. This stamp file, listed as a watched build asset (see
+ * [AotWorkspacePatcher]), changes whenever the library bytes change, which nudges `ng serve` to
+ * rebuild and re-pull the fresh library through the symlink (`preserveSymlinks`). Its contents are
+ * never read — only the change matters. Gradle's own up-to-date check (content-hashed [libDir])
+ * keeps it from rewriting — and so from spuriously reloading — when the library is unchanged.
+ */
+abstract class AotHashStampTask : DefaultTask() {
+    /** The synced library dir whose contents are hashed (`build/aot-kotlin-lib`). */
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val libDir: DirectoryProperty
+
+    /** Watched stamp file in the workspace src (`build/ng-aot/src/generated/build-stamp.txt`). */
+    @get:OutputFile
+    abstract val stampFile: RegularFileProperty
+
+    @TaskAction
+    fun stamp() {
+        val dir = libDir.get().asFile
+        val digest = MessageDigest.getInstance("SHA-256")
+        // Hash path + bytes of every file, in a stable order, so the stamp tracks any content change.
+        dir.walkTopDown().filter { it.isFile }.sortedBy { it.relativeTo(dir).invariantSeparatorsPath }
+            .forEach { file ->
+                digest.update(file.relativeTo(dir).invariantSeparatorsPath.toByteArray())
+                digest.update(file.readBytes())
+            }
+        val hash = digest.digest().joinToString("") { "%02x".format(it) }
+        val out = stampFile.get().asFile
+        out.parentFile.mkdirs()
+        out.writeText(hash)
     }
 }
 

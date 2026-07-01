@@ -36,8 +36,21 @@ internal fun Project.collectNgExternalModules(): Map<String, String> {
 /** Project dependencies across every configuration; extra (test) modules are harmless to scan. */
 private fun Project.dependencyProjects(): Set<Project> =
     configurations.flatMap { it.dependencies.withType(ProjectDependency::class.java) }
-        .map { it.dependencyProject }
+        .map { resolveProject(it) }
         .toSet()
+
+/**
+ * Resolve a [ProjectDependency] to its [Project] across Gradle versions. Neither method can be
+ * referenced directly in source and still load on both, so bridge them reflectively: prefer
+ * the modern `getPath()`, fall back to the legacy `getDependencyProject()`.
+ */
+private fun Project.resolveProject(dep: ProjectDependency): Project =
+    try {
+        val path = dep.javaClass.getMethod("getPath").invoke(dep) as String
+        project(path)
+    } catch (_: NoSuchMethodException) {
+        dep.javaClass.getMethod("getDependencyProject").invoke(dep) as Project
+    }
 /**
  * A `@file:JsModule` annotation applies to every top-level declaration in the file, so each
  * `external class/object/interface` in such a file maps `package.Name → module`.
