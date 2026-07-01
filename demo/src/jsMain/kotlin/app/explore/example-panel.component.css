@@ -8,8 +8,8 @@
     margin-bottom: 7px; color: var(--ak-text-faint);
 }
 .lang { padding: 2px 7px; border-radius: 6px; color: #fff; font-size: 0.66rem; }
-.lang.ts { background: #3178c6; }
-.lang.kt { background: #7f52ff; }
+.lang.ts { background: #f5b400; color: #1a1a1a; }
+.lang.kt { background: #29b6f6; }
 .ts-warning {
     display: flex; align-items: center; gap: 8px;
     margin-bottom: 8px; padding: 7px 12px;
@@ -17,6 +17,17 @@
     color: #8a6d00; font-size: 0.78rem; font-weight: 500; line-height: 1.35;
 }
 .ts-warning mat-icon { font-size: 18px; width: 18px; height: 18px; color: #f9a825; flex: none; }
+
+/* Bundle-size caveat for examples that pull a heavy Kotlin-only library (Ktor, coroutines, Koin)
+   into the build — a calmer blue info banner, distinct from the amber "not supported" warning. */
+.bundle-note {
+    display: flex; align-items: flex-start; gap: 8px;
+    margin: -8px 0 22px; padding: 9px 13px;
+    background: #eef4ff; border: 1px solid #cdddfb; border-radius: 8px;
+    color: #1f4d8f; font-size: 0.8rem; line-height: 1.45;
+}
+.bundle-note mat-icon { font-size: 18px; width: 18px; height: 18px; color: #3b76d9; flex: none; margin-top: 1px; }
+.bundle-note strong { font-weight: 700; }
 
 .live { border: 1px solid var(--ak-border); border-radius: 12px; overflow: hidden; }
 .live-head {

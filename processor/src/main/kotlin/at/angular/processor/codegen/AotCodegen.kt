@@ -36,7 +36,7 @@ class AotCodegen(
         writeMainEntry(model)
         model.ngDeclarations.forEach { declaration ->
             val view = bridgeFor(declaration, resolver, profile).createView()
-            write(declaration.simpleName, listOfNotNull(declaration.containingFile), aggregating = false) {
+            write(declaration.simpleName, listOfNotNull(declaration.containingFile), aggregating = true) {
                 renderer.render(view.templateName, view)
             }
         }

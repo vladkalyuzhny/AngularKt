@@ -13,7 +13,13 @@ val angularNpmVersion = angularConfig.angularNpmVersion
 // (The JIT build carries its own theme config in webpack.config.d/app-jit.js.)
 angularKt {
     aotConfig {
-        // AOT bootstraps the standalone RootComponent via `bootstrapApplication`
+        // Names the standalone root @Component — this is what DETERMINES the generated AOT `main.ts`:
+        //   set   → standalone `bootstrapApplication(RootComponent, [importProvidersFrom(routing)])`
+        //   unset → classic module `bootstrapModule(<the @NgModule with bootstrap=[…]>)`
+        // AOT-only: the AOT entry is generated, so the root's identity must live in this DSL knob where
+        // KSP can read it.
+        // The JIT entry (src/jsJit/kotlin/main.kt) is hand-written, so it needs no
+        // equivalent — you pick the bootstrap style directly in that file.
         bootstrapComponent.set("app.RootComponent")
         // Angular Material's prebuilt theme — without it Material components and the app's own
         // `--mat-sys-*` styles render unthemed.

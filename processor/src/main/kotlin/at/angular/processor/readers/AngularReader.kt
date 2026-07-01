@@ -46,7 +46,7 @@ class AngularReader {
      * - listed in a feature (non-bootstrap) `@NgModule`'s `imports` → `RouterModule.forChild` (`forChild`);
      * - none of the above → the root (`provideRouter`/`forRoot`).
      *
-     * The root may itself be imported by the *bootstrap* `@NgModule` (JIT's `AppModuleClassic`), so only
+     * The root may itself be imported by the *bootstrap* `@NgModule`, so only
      * non-bootstrap modules contribute `forChild` — that's what separates a feature module from the root.
      */
     private fun readEmittedRoutingModules(resolver: Resolver): List<RoutingModuleModel> {

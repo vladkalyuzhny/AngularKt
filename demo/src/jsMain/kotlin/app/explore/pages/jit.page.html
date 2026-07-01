@@ -4,12 +4,13 @@
 <div class="setup-body">
     <p class="mode-run">Entry point — <code>src/jsJit/kotlin/main.kt</code> bootstraps from Kotlin:</p>
     <pre class="code-block"><code [innerHTML]="jitEntry"></code></pre>
-    <p class="mode-run"><strong>Required</strong> — add <code>webpack.config.d/angular-jit.js</code> so <code>zone.js</code> + <code>&#64;angular/compiler</code> load before any Angular module; without it the app throws at startup:</p>
-    <pre class="code-block"><code [innerHTML]="jitWebpack"></code></pre>
-    <p class="mode-run">Start the dev server:</p>
+    <p class="mode-run">Start the dev server — instant rebuilds and hot reload:</p>
     <pre class="code-block shell"><code [innerHTML]="jitRun"></code></pre>
+    <p class="mode-run">Build a release bundle — minified, emitted to <code>build/dist/js/productionExecutable</code>:</p>
+    <pre class="code-block shell"><code [innerHTML]="jitBuild"></code></pre>
     <ul class="mode-list">
         <li>Templates are compiled in the browser by <code>&#64;angular/compiler</code>.</li>
+        <li><code>zone.js</code> + <code>&#64;angular/compiler</code> must load before any Angular module; the plugin generates that <code>webpack.config.d</code> fragment for you — no manual JS step.</li>
         <li>Default mode: any task that isn't <code>aot*</code> runs JIT.</li>
     </ul>
 </div>

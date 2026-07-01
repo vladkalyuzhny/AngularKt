@@ -18,6 +18,10 @@ class Feature(
     val desc: String,
     val ts: String,
     val kt: String,
+    /** Optional bundle-size caveat for examples that pull a heavy Kotlin-only library into the
+     *  build (Ktor, coroutines, Koin). Empty for examples that cost nothing beyond the stdlib.
+     *  Rendered as a warning banner under the description (see [ExamplePanelComponent]). */
+    val bundleNote: String = "",
 )
 
 /** The catalog, built once. The shell reads these for its nav; each page reads its own [feature]. */
@@ -74,6 +78,9 @@ internal fun buildExamples(): Array<Feature> = arrayOf(
             "started once at bootstrap; the component implements KoinComponent and pulls its service " +
             "straight from the global container, no @angular/core involved.",
         highlightTs(KOIN_TS), highlightKotlin(KOIN_KT),
+        bundleNote = "Koin adds ~6 KB gzip to the bundle. Angular's own DI (the Services & DI " +
+            "example) is already shipped, so it costs nothing extra — reach for Koin only when you " +
+            "want a framework-independent container.",
     ),
     Feature(
         "router", "Router", "alt_route",
@@ -146,11 +153,18 @@ internal fun buildExamples(): Array<Feature> = arrayOf(
         "No RxJS. A coroutine scoped to the component lifecycle ticks every 100 ms and cancels " +
             "itself on destroy via Angular's DestroyRef — there is no ngOnDestroy.",
         highlightTs(COROUTINES_TS), highlightKotlin(COROUTINES_KT),
+        bundleNote = "kotlinx.coroutines adds ~30 KB gzip. It is shared across every example that " +
+            "uses suspend or Flow (Signals, Reactive forms, HttpClient, Ktor), so you pay for it " +
+            "once — but a purely synchronous app would not ship it at all.",
     ),
     Feature(
         "ktor", "Ktor HTTP", "cloud_download",
         "Reach the network with Ktor and kotlinx.serialization — a plain suspend function " +
             "instead of an HttpClient that hands back an Observable.",
         highlightTs(KTOR_TS), highlightKotlin(KTOR_KT),
+        bundleNote = "Heaviest dependency in the demo: Ktor pulls its full multiplatform HTTP " +
+            "stack plus coroutines and kotlinx.serialization — roughly ~180 KB gzip. In the " +
+            "browser, Angular's HttpClient or a thin fetch() wrapper is far lighter; prefer Ktor " +
+            "only when you share networking code with a Kotlin Multiplatform backend.",
     ),
 )

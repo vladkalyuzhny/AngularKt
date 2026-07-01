@@ -9,7 +9,6 @@ import app.explore.customizeJitHtml
 import app.explore.featureById
 import app.explore.highlightGradleCmd
 import app.explore.jitEntryHtml
-import app.explore.jitWebpackHtml
 import app.explore.setupComponentHtml
 import app.explore.setupGradleHtml
 import at.angular.core.Component
@@ -41,8 +40,8 @@ class SetupPageComponent {
 class JitPageComponent {
     val feature: Feature = featureById("jit")
     val jitEntry: String = jitEntryHtml()
-    val jitWebpack: String = jitWebpackHtml()
     val jitRun: String = highlightGradleCmd("./gradlew :app:jsBrowserDevelopmentRun -t -PangularKt.port=8080")
+    val jitBuild: String = highlightGradleCmd("./gradlew :app:jsBrowserDistribution  # minified release bundle")
 }
 
 @JsExport

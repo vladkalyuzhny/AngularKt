@@ -5,7 +5,7 @@ package app.explore
  *
  * Each function returns HTML with `<span class="hljs-…">` token wrappers; the colors come from
  * the highlight.js theme stylesheet, wired per build mode the same way as the Material theme —
- * JIT injects it from webpack.config.d/angular-jit.js, AOT adds it to angular.json via
+ * JIT injects it from webpack.config.d/app-jit.js, AOT adds it to angular.json via
  * `angularKt { aotConfig { styles.add(...) } }`. The result is bound with `[innerHTML]`, and
  * Angular's sanitizer keeps the `<span class>` markup.
  *

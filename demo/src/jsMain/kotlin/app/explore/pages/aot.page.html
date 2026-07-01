@@ -8,7 +8,8 @@
     <pre class="code-block shell"><code [innerHTML]="aotServe"></code></pre>
     <pre class="code-block shell"><code [innerHTML]="aotBuild"></code></pre>
     <ul class="mode-list">
-        <li>The processor generates <code>main.ts</code>, which calls <code>main</code> with the compiled <code>AppModule</code> bridge.</li>
+        <li>The processor generates <code>main.ts</code> and calls your exported <code>main</code> with the compiled root component + router providers.</li>
+        <li><code>aotConfig.bootstrapComponent</code> decides what that generated entry does: set &rarr; standalone <code>bootstrapApplication</code>; unset &rarr; classic <code>bootstrapModule</code> of your root <code>&#64;NgModule</code>. The JIT entry is hand-written, so it has no such knob.</li>
         <li>Templates are compiled to JavaScript at build time, with full type-checking.</li>
         <li><code>aotServe</code> runs the dev server plus a background recompile-on-edit; the server reloads when the new Kotlin lands.</li>
         <li>Selected automatically by running an <code>aot*</code> task.</li>

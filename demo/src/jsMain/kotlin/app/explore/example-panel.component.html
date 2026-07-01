@@ -1,6 +1,11 @@
 <h2>{{ feature.label }}</h2>
 <p class="desc">{{ feature.desc }}</p>
 
+<div class="bundle-note" *ngIf="feature.bundleNote">
+    <mat-icon>scale</mat-icon>
+    <span><strong>Bundle cost:</strong> {{ feature.bundleNote }}</span>
+</div>
+
 <div class="code-grid">
     <div class="code-col">
         <div class="code-head"><span class="lang ts">TypeScript</span></div>

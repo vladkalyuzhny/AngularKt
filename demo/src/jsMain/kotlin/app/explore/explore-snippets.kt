@@ -19,7 +19,6 @@ private const val TQ = "\"\"\""
 internal fun setupGradleHtml(): String = highlightKotlin(SETUP_GRADLE)
 internal fun setupComponentHtml(): String = highlightKotlin(SETUP_COMPONENT)
 internal fun jitEntryHtml(): String = highlightKotlin(JIT_ENTRY)
-internal fun jitWebpackHtml(): String = highlightTs(JIT_WEBPACK)
 internal fun aotEntryHtml(): String = highlightKotlin(AOT_ENTRY)
 internal fun customizeAotHtml(): String = highlightKotlin(CUSTOMIZE_AOT)
 internal fun customizeJitHtml(): String = highlightTs(CUSTOMIZE_JIT)
@@ -68,19 +67,7 @@ private val JIT_ENTRY = """
 // src/jsJit/kotlin/main.kt — classic platformBrowserDynamic bootstrap, the textbook JIT path
 fun main() {
     registerAngularKt()  // KSP-generated: applies your @Component/@NgModule decorators
-    // root @RoutingModule → RouterModule.forRoot(routes); BootstrapModule just imports AppRoutingModule
-    platformBrowserDynamic(undefined).bootstrapModule(BootstrapModule::class.js)
-}
-""".trim()
-
-private val JIT_WEBPACK = """
-// webpack.config.d/angular-jit.js — REQUIRED for JIT
-// zone.js + @angular/compiler must evaluate before any @angular module: Angular
-// libraries ship in partial-Ivy format and JIT-link at class-definition time, so
-// they throw if the compiler isn't loaded yet. main()'s body runs too late (its
-// ES imports evaluate first), so prepend them as their own webpack entries.
-if (config.entry && Array.isArray(config.entry.main)) {
-    config.entry.main = ['zone.js', '@angular/compiler', ...config.entry.main];
+    platformBrowserDynamic(undefined).bootstrapModule(AppModule::class.js)
 }
 """.trim()
 
@@ -97,6 +84,11 @@ private val CUSTOMIZE_AOT = """
 // build.gradle.kts — global assets for the AOT build
 angularKt {
     aotConfig {
+        // names the standalone root @Component — DECIDES the generated main.ts: set → standalone
+        // bootstrapApplication(root); unset → classic bootstrapModule of your root @NgModule.
+        // (AOT-only; the JIT entry is hand-written, so it needs no such knob.)
+        bootstrapComponent.set("app.AppComponent")
+
         // a stylesheet: an npm specifier or a project-relative path
         styles.add("@angular/material/prebuilt-themes/indigo-pink.css")
         styles.add("src/jsMain/resources/custom-theme.css")
@@ -108,15 +100,18 @@ angularKt {
 """.trim()
 
 private val CUSTOMIZE_JIT = """
-// webpack.config.d/angular-jit.js — the same assets for JIT
+// webpack.config.d/app-jit.js — the same assets for JIT
 if (config.entry && Array.isArray(config.entry.main)) {
     // 'style' lets webpack resolve a package's CSS export (Angular Material, …)
     config.resolve = config.resolve || {};
     config.resolve.conditionNames = ['style', '...'];
 
-    // style-loader + css-loader inject these at runtime
+    // style-loader + css-loader inject the stylesheets at runtime
     config.entry.main.push('@angular/material/prebuilt-themes/indigo-pink.css');
     config.entry.main.push('./src/jsMain/resources/custom-theme.css');
+
+    // a global script — the JIT mirror of scripts.add(…)
+    config.entry.main.push('chart.js/dist/chart.umd.js');
 }
 """.trim()
 
@@ -486,8 +481,7 @@ export class BranchComponent {}
 """.trim()
 
 internal val ROUTER_KT = """
-// Root routes → AOT (standalone) emits provideRouter(routes); JIT (classic NgModule)
-// decorates AppRoutingModule with RouterModule.forRoot(routes) — idiomatic for each bootstrap style.
+// @RoutingModule compiles to provideRouter(routes).
 @RoutingModule(
     routes = [
         Route(path = "", component = TreeComponent::class),
@@ -497,19 +491,18 @@ internal val ROUTER_KT = """
 )
 class AppRoutingModule
 
-// The branch points at another @RoutingModule class; the processor inlines it recursively,
-// so routes nest like a tree — the branch shell holds a leaf.
+// children points at another @RoutingModule; the processor inlines its routes here.
 @RoutingModule(routes = [
     Route(path = "", redirectTo = "leaf", pathMatch = "full"),
     Route(path = "leaf", component = LeafComponent::class),
 ])
 class BranchRoutes
 
-// The lazy target is a @RoutingModule (no @NgModule), so loadChildren resolves to its routes array.
+// loadChildren resolves to a @RoutingModule's routes array.
 @RoutingModule(routes = [Route(path = "", component = LazyComponent::class)])
 class LazyRoutes
 
-// The branch is a shell: it renders the nested outlet so only the leaf shows a path.
+// Shell for the nested routes — just a <router-outlet>.
 @JsExport
 @Component(selector = "app-branch", template = "<router-outlet></router-outlet>")
 class BranchComponent

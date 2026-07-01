@@ -2,9 +2,9 @@
 <p class="desc">{{ feature.desc }}</p>
 
 <div class="setup-body">
-    <p class="mode-run">For <strong>AOT</strong>, list global stylesheets and scripts in the <code>angularKt</code> block — they are added to the generated <code>angular.json</code>:</p>
+    <p class="mode-run">For <strong>AOT</strong>, configure the build in the <code>angularKt</code> block:</p>
     <pre class="code-block"><code [innerHTML]="customizeAot"></code></pre>
-    <p class="mode-run">For <strong>JIT</strong>, mirror the same assets in <code>webpack.config.d/angular-jit.js</code> so webpack injects them:</p>
+    <p class="mode-run">For <strong>JIT</strong>, mirror the same assets in <code>webpack.config.d/app-jit.js</code> so webpack injects them:</p>
     <pre class="code-block"><code [innerHTML]="customizeJit"></code></pre>
     <ul class="mode-list">
         <li>Each entry is a project-relative path (<code>src/jsMain/resources/custom-theme.css</code>) or a bare npm specifier (<code>highlight.js/styles/github.css</code>).</li>

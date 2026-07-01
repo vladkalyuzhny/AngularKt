@@ -97,8 +97,8 @@ Routing has its own annotation. The root route set (the one nothing references a
 bootstrap it becomes `provideRouter(routes)` at the environment injector - the idiomatic
 standalone target, no shim. Under a classic-NgModule bootstrap the processor emits a runtime
 `@NgModule({ imports: [RouterModule.forRoot(routes)] })` decoration on the route class,
-making it an importable `forRoot` module. (AngularKt pairs standalone with AOT and classic
-with JIT, so in practice the mode picks the style for you.)
+making it an importable `forRoot` module. (Bootstrap style is independent of the compile mode,
+the demo just pairs standalone with AOT and classic with JIT to showcase both.)
 
 ```kotlin
 @RoutingModule(routes = [
@@ -113,7 +113,8 @@ class AppRoutingModule
 
 The generated bridge wires whichever the bootstrap uses: a standalone app gets `provideRouter`;
 a classic app has `registerAngularKt()` decorate `AppRoutingModule` with `RouterModule.forRoot(routes)`
-and `AppModuleClassic` import it. Either way `appProviders()` carries the rest.
+and your root `@NgModule` (e.g. `BootstrapModule`) import it. The rest of the providers ride along the
+same way — `appProviders()` for the standalone app, the root `@NgModule`'s `imports` for the classic one.
 
 Router features carry over to either style — e.g. `@RoutingModule(useHash = true)` (`#/path` URLs)
 becomes `provideRouter(routes, withHashLocation())` under a standalone bootstrap and
@@ -217,6 +218,16 @@ toolchain, so `@angular/compiler` is **not** in the runtime bundle. How it works
 3. An Angular workspace is generated into `demo/build/ng-aot` (`ng new`, pinned to
    the target Angular major - nothing is checked in), wires the Kotlin library in as
    a local `file:` npm dependency, and AOT-compiles the bridges with `@angular/build`.
+
+The generated `main.ts`'s bootstrap style is decided by **`aotConfig.bootstrapComponent`**:
+name a standalone root `@Component` and the entry becomes `bootstrapApplication(root, …)`;
+leave it unset and the processor falls back to a classic `bootstrapModule` of your root
+`@NgModule` (the one with a `bootstrap = [...]` array). This knob is AOT-only — the AOT entry
+is *generated*, so the root's identity has to live somewhere KSP can read it. The JIT entry is
+your own hand-written `main.kt`, where you call `bootstrapApplication` or
+`platformBrowserDynamic().bootstrapModule(...)` directly, so it needs no equivalent. (Compile
+mode and bootstrap style are independent axes; the demo just pairs AOT with standalone and JIT
+with classic to showcase both idioms.)
 
 One task drives the whole pipeline - build the library, emit + copy the bridges,
 `npm install`, AOT build:
