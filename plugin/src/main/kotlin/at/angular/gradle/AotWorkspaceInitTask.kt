@@ -2,11 +2,13 @@ package at.angular.gradle
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
 import java.io.File
@@ -47,8 +49,24 @@ abstract class AotWorkspaceInitTask : DefaultTask() {
     @get:Input
     abstract val nodeBinDir: Property<String>
 
-    @get:OutputDirectory
+    /**
+     * The workspace root (`build/ng-aot`). NOT declared as the task output: the whole rest of the
+     * pipeline (bridges, assets, `npm install`, and `ng serve`'s own `dist/`) writes into this dir,
+     * so tracking it as an `@OutputDirectory` made Gradle see it "change" after every downstream
+     * task and re-run `aotInit` — re-scaffolding from scratch each time. Fatal for continuous
+     * `aotSync -t` (it would wipe the workspace on every Kotlin edit). Up-to-dateness is tracked by
+     * [scaffoldStamp] instead; this stays `@Internal` (the dir we operate on, not a tracked output).
+     */
+    @get:Internal
     abstract val workspace: DirectoryProperty
+
+    /**
+     * Marker written once scaffolding completes. As the task's only output, Gradle's up-to-date
+     * check ignores the rest of the workspace (mutated by downstream tasks) and re-runs `aotInit`
+     * only when an `@Input` changes or the stamp is missing (e.g. after `clean`).
+     */
+    @get:OutputFile
+    abstract val scaffoldStamp: RegularFileProperty
 
     @TaskAction
     fun initWorkspace() {
@@ -95,5 +113,7 @@ abstract class AotWorkspaceInitTask : DefaultTask() {
             globalStyles = globalStyles.get(),
             globalScripts = globalScripts.get(),
         )
+        // Mark scaffolding complete — this file (not the mutated workspace dir) is what Gradle tracks.
+        scaffoldStamp.get().asFile.writeText("scaffolded\n")
     }
 }
