@@ -1,2 +1,3 @@
-.greeting { font-weight: 600; margin: 12px 0 2px; }
-.meta { color: var(--ak-text-faint); font-size: 0.85rem; margin: 0 0 12px; }
+/* Layout only — stack the elements with even spacing (no text styling). */
+:host { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+:host p { margin: 0; }

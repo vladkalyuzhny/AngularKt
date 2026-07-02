@@ -24,19 +24,23 @@ class HighlightDirective(private val el: ElementRef) : OnInit {
     var hot: Boolean = false
 
     override fun ngOnInit() {
-        el.nativeElement.style.backgroundColor = "yellow"
+        // Theme-aware CSS variables (defined per light/dark in index.html) so the
+        // tint reads well on any background instead of a hard-coded color.
+        el.nativeElement.style.backgroundColor = "var(--ak-highlight-bg)"
         el.nativeElement.setAttribute("data-highlighted", "true")
     }
 
     @HostListener("mouseenter")
     fun onEnter() {
         hot = true
+        el.nativeElement.style.backgroundColor = "var(--ak-highlight-hot-bg)"
         el.nativeElement.setAttribute("data-hot", "true")
     }
 
     @HostListener("mouseleave")
     fun onLeave() {
         hot = false
+        el.nativeElement.style.backgroundColor = "var(--ak-highlight-bg)"
         el.nativeElement.setAttribute("data-hot", "false")
     }
 }

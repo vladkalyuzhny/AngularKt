@@ -21,7 +21,8 @@ class ExamplePanelComponent {
     @Input
     var feature: Feature = EXAMPLES[0]
 
-    /** Kotlin-native features (coroutines, Ktor) have no direct TypeScript/Angular equivalent —
+    /** Kotlin-native features (Koin, coroutines, Ktor) have no direct TypeScript/Angular equivalent —
      *  the TS column shows the closest workaround under a "not supported" warning. */
-    val tsUnsupported: Boolean get() = feature.id == "coroutines" || feature.id == "ktor"
+    val tsUnsupported: Boolean get() =
+        feature.id == "koin" || feature.id == "coroutines" || feature.id == "ktor"
 }

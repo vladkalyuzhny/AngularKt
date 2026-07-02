@@ -117,9 +117,8 @@ internal fun buildExamples(): Array<Feature> = arrayOf(
     ),
     Feature(
         "lifecycle", "Lifecycle & CD", "sync",
-        "Three @Component knobs at once: changeDetection = OnPush checks the child only when an " +
-            "@Input reference changes; encapsulation = None makes its styles global; and OnChanges' " +
-            "ngOnChanges fires on every @Input change — the declarative alternative to a property " +
+        "changeDetection = OnPush re-checks the child only when its @Input reference changes; the " +
+            "OnChanges hook's ngOnChanges then fires — the declarative alternative to a property " +
             "setter. Click the button to change the input and watch the OnPush child react.",
         highlightTs(LIFECYCLE_TS), highlightKotlin(LIFECYCLE_KT),
     ),

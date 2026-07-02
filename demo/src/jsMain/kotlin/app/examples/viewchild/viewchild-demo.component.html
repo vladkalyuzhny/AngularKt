@@ -1,5 +1,5 @@
 <div class="reader">
     <input #box value="Try me">
-    <button mat-stroked-button (click)="read()">Read DOM value</button>
-    <p *ngIf="value" data-box-read class="result">You wrote: <strong>{{value}}</strong></p>
+    <button mat-raised-button color="primary" (click)="read()">Read DOM value</button>
+    <p *ngIf="value" data-box-read class="result">You wrote: {{value}}</p>
 </div>

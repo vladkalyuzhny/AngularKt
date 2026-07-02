@@ -13,6 +13,7 @@ import at.angular.core.Component
 @Component(
     selector = "app-lifecycle",
     templateUrl = "./lifecycle.component.html",
+    styleUrls = ["./lifecycle.component.css"],
 )
 class LifecycleComponent {
     var count = 0

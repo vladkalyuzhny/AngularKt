@@ -91,7 +91,7 @@ class KtorPageComponent { val feature: Feature = featureById("ktor") }
     selector = "app-pipe-page",
     template = """
         <app-example [feature]="feature">
-            <p class="pipe-line"><code>'AngularKt' | exclaim</code> → <strong>{{ 'AngularKt' | exclaim }}</strong></p>
+            <p class="pipe-line"><code>'AngularKt' | exclaim</code> → {{ 'AngularKt' | exclaim }}</p>
         </app-example>
     """,
     styles = [".pipe-line code { background: var(--ak-inline-code-bg); padding: 1px 6px; border-radius: 5px; }"],
@@ -107,8 +107,8 @@ class PipePageComponent { val feature: Feature = featureById("pipe") }
         </app-example>
     """,
     styles = [
-        ".dir-demo { display: inline-block; padding: 8px 12px; border-radius: 8px; transition: box-shadow .15s; cursor: default; }",
-        ".dir-demo.is-hot { box-shadow: 0 0 0 3px rgba(230,98,9,.4); }",
+        ".dir-demo { display: inline-block; padding: 8px 12px; border-radius: 8px; color: var(--ak-text); transition: background-color .15s, box-shadow .15s; cursor: default; }",
+        ".dir-demo.is-hot { box-shadow: 0 0 0 3px var(--ak-highlight-ring); }",
     ],
 )
 class DirectivePageComponent { val feature: Feature = featureById("directive") }
@@ -122,7 +122,7 @@ class DirectivePageComponent { val feature: Feature = featureById("directive") }
             <p class="reply" *ngIf="reply">Parent received: “{{reply}}”</p>
         </app-example>
     """,
-    styles = [".reply { margin: 12px 0 0; color: var(--ak-link); font-size: 0.9rem; }"],
+    styles = [".reply { margin: 12px 0 0; }"],
 )
 class IoPageComponent {
     val feature: Feature = featureById("io")

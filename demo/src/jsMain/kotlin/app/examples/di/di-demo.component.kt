@@ -12,7 +12,6 @@ import at.angular.core.Component
 @Component(
     selector = "app-di",
     templateUrl = "./di-demo.component.html",
-    styleUrls = ["./di-demo.component.css"]
 )
 class DiDemoComponent(greeting: GreetingService) {
     val message: String = greeting.greet()

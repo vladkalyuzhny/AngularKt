@@ -34,6 +34,10 @@
       --ak-active-fg: #1967d2;
       --ak-nav-fg: #3c4043;
       --ak-nav-group: #9aa0a6;
+      /* [appHighlight] directive demo — translucent so it reads on any background */
+      --ak-highlight-bg: rgba(25,103,210,.10);
+      --ak-highlight-hot-bg: rgba(25,103,210,.18);
+      --ak-highlight-ring: rgba(25,103,210,.35);
       background: var(--ak-page-bg);
       color: var(--ak-text);
       transition: background-color .2s ease, color .2s ease;
@@ -55,6 +59,9 @@
       --ak-active-fg: #8ab4f8;
       --ak-nav-fg: #c2c7cf;
       --ak-nav-group: #767c85;
+      --ak-highlight-bg: rgba(138,180,248,.16);
+      --ak-highlight-hot-bg: rgba(138,180,248,.28);
+      --ak-highlight-ring: rgba(138,180,248,.45);
       color-scheme: dark;
     }
     /* The "Explore" snippets are highlighted with highlight.js's light github.css (bundled
@@ -63,6 +70,9 @@
     body.dark .hljs-keyword, body.dark .hljs-selector-tag, body.dark .hljs-literal,
     body.dark .hljs-section, body.dark .hljs-link, body.dark .hljs-meta { color: #ff7b72; }
     body.dark .hljs-string, body.dark .hljs-attr, body.dark .hljs-regexp { color: #a5d6ff; }
+    /* String interpolation (${...}) — highlight.js wraps it in .hljs-subst; render as the normal
+       foreground so the embedded expression is readable and stands out from the string literal. */
+    body.dark .hljs-subst { color: var(--ak-text); }
     body.dark .hljs-title, body.dark .hljs-name, body.dark .hljs-type,
     body.dark .hljs-selector-id, body.dark .hljs-selector-class { color: #d2a8ff; }
     body.dark .hljs-number, body.dark .hljs-symbol, body.dark .hljs-built_in,
@@ -85,9 +95,6 @@
       --mdc-protected-button-disabled-container-color: var(--ak-hover-bg);
     }
     body.dark .mat-mdc-raised-button[disabled] .mdc-button__label { color: var(--ak-text-faint); }
-    /* Router demo: each routed view renders only its own path, as monospace text.
-       Global (not component-scoped) so it reaches into the routed child components. */
-    .route-path { margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1.1rem; }
   </style>
 </head>
 <body class="mat-typography">

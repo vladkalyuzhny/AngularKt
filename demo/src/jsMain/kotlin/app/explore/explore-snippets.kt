@@ -122,10 +122,13 @@ internal val SIGNAL_TS = """
   selector: 'app-counter',
   template: `<button (click)="dec()">−</button>
              <span>{{ count() }}</span>
-             <button (click)="inc()">+</button>`,
+             <button (click)="inc()">+</button>
+             <p>×2 (computed) = {{ doubled() }}</p>`,
 })
 export class CounterComponent {
   count = signal(0);
+  // derived + memoized: recomputes only when count() changes
+  doubled = computed(() => this.count() * 2);
   inc() { this.count.update(n => n + 1); }
   dec() { this.count.update(n => n - 1); }
 }
@@ -139,6 +142,7 @@ internal val SIGNAL_KT = """
         <button (click)='dec()'>−</button>
         <span>{{count()}}</span>
         <button (click)='inc()'>+</button>
+        <p>×2 (computed) = {{doubled()}}</p>
     $TQ,
 )
 class CounterComponent {
@@ -148,6 +152,9 @@ class CounterComponent {
     // a Kotlin StateFlow exposed as a real Angular signal
     val count = state.asSignal(lifecycle)
 
+    // derived + memoized: recomputes only when count() changes
+    val doubled = computed { count() * 2 }
+
     fun inc() { state.value += 1 }
     fun dec() { state.value -= 1 }
 }
@@ -156,13 +163,19 @@ class CounterComponent {
 internal val IO_TS = """
 @Component({
   selector: 'app-child',
-  template: `<button (click)="ping()">Wave back 👋</button>`,
+  template: `<p>The app says: “{{ name }}”</p>
+             <button (click)="ping()">Wave back 👋</button>
+             <p *ngIf="waves > 0">You've waved {{ waves }} time(s)</p>`,
 })
 export class ChildComponent {
   @Input('childName') name = '';
   @Output() notify = new EventEmitter<string>();
+  waves = 0;
 
-  ping() { this.notify.emit('Nice to meet you!'); }
+  ping() {
+    this.waves++;
+    this.notify.emit(this.waves === 1 ? 'Nice to meet you! 😊' : 'Waving back again! 👋');
+  }
 }
 """.trim()
 
@@ -170,7 +183,11 @@ internal val IO_KT = """
 @JsExport
 @Component(
     selector = "app-child",
-    template = "<button (click)='ping()'>Wave back 👋</button>",
+    template = $TQ
+        <p>The app says: “{{name}}”</p>
+        <button (click)='ping()'>Wave back 👋</button>
+        <p *ngIf='waves > 0'>You've waved {{waves}} time(s)</p>
+    $TQ,
 )
 class ChildComponent {
     @Input(alias = "childName")
@@ -179,18 +196,23 @@ class ChildComponent {
     @Output
     val notify = EventEmitter<String>()
 
-    fun ping() { notify.emit("Nice to meet you!") }
+    var waves = 0
+
+    fun ping() {
+        waves++
+        notify.emit(if (waves == 1) "Nice to meet you! 😊" else "Waving back again! 👋")
+    }
 }
 """.trim()
 
 internal val DI_TS = """
 @Injectable({ providedIn: 'root' })
 export class GreetingService {
-  greet() { return 'Welcome back!'; }
+  greet() { return 'Welcome back! 👋'; }
 }
 
 @Component({ selector: 'app-di', template: `{{ message }}` })
-export class DiComponent {
+export class DiDemoComponent {
   message: string;
   constructor(greeting: GreetingService) {
     this.message = greeting.greet();
@@ -202,12 +224,12 @@ internal val DI_KT = """
 @JsExport
 @Injectable(providedIn = "root")
 class GreetingService {
-    fun greet() = "Welcome back!"
+    fun greet() = "Welcome back! 👋"
 }
 
 @JsExport
 @Component(selector = "app-di", template = "{{message}}")
-class DiComponent(greeting: GreetingService) {
+class DiDemoComponent(greeting: GreetingService) {
     val message = greeting.greet()
 }
 """.trim()
@@ -219,12 +241,17 @@ export class QuoteService {
   next() { return '…'; }
 }
 
-@Component({ selector: 'app-koin', template: `{{ quote }}` })
+@Component({
+  selector: 'app-koin',
+  template: `<blockquote>“{{ quote }}”</blockquote>
+             <button (click)="next()">Next quote</button>`,
+})
 export class KoinComponent {
   quote: string;
   constructor(private quotes: QuoteService) {
     this.quote = quotes.next();
   }
+  next() { this.quote = this.quotes.next(); }
 }
 """.trim()
 
@@ -240,28 +267,51 @@ val appKoinModule = module {
 }
 
 @JsExport
-@Component(selector = "app-koin", template = "{{quote}}")
+@Component(
+    selector = "app-koin",
+    template = $TQ
+        <blockquote>“{{quote}}”</blockquote>
+        <button (click)='next()'>Next quote</button>
+    $TQ,
+)
 class KoinDemoComponent : KoinComponent {
+    // resolved from Koin's global container, not Angular's injector
     private val quotes: QuoteService by inject()
     var quote = quotes.next()
+
+    fun next() { quote = quotes.next() }
 }
 """.trim()
 
 internal val SANITIZER_TS = """
-class IconComponent {
+@Component({
+  selector: 'app-sanitizer',
+  template: `<p>Raw string: <span [innerHTML]="raw"></span></p>
+             <p>Trusted (bypassSecurityTrustHtml): <span [innerHTML]="safe"></span></p>`,
+})
+export class SanitizerComponent {
+  svg = '<svg>…</svg>';
+  raw = svg;              // sanitizer strips the <svg> → blank
   safe: SafeHtml;
   constructor(s: DomSanitizer) {
-    // trusted markup survives [innerHTML] sanitization
-    this.safe = s.bypassSecurityTrustHtml(svg);
+    this.safe = s.bypassSecurityTrustHtml(svg);  // trusted → renders
   }
 }
 """.trim()
 
 internal val SANITIZER_KT = """
-class IconComponent(s: DomSanitizer) {
-    // trusted markup survives [innerHTML] sanitization
-    val safe: SafeHtml =
-        s.bypassSecurityTrustHtml(svg)
+@JsExport
+@Component(
+    selector = "app-sanitizer",
+    template = $TQ
+        <p>Raw string: <span [innerHTML]='raw'></span></p>
+        <p>Trusted (bypassSecurityTrustHtml): <span [innerHTML]='safe'></span></p>
+    $TQ,
+)
+class SanitizerComponent(s: DomSanitizer) {
+    val svg = "<svg>…</svg>"
+    val raw: String = svg                                        // sanitizer strips the <svg> → blank
+    val safe: SafeHtml = s.bypassSecurityTrustHtml(svg)          // trusted → renders
 }
 """.trim()
 
@@ -272,7 +322,7 @@ export class ExclaimPipe implements PipeTransform {
     return value + '!!!';
   }
 }
-// usage: {{ 'Kotlin' | exclaim }}
+// usage: {{ 'AngularKt' | exclaim }}
 """.trim()
 
 internal val PIPE_KT = """
@@ -281,7 +331,7 @@ internal val PIPE_KT = """
 class ExclaimPipe {
     fun transform(value: String): String = value + "!!!"
 }
-// usage: {{ 'Kotlin' | exclaim }}
+// usage: {{ 'AngularKt' | exclaim }}
 """.trim()
 
 internal val DIRECTIVE_TS = """
@@ -311,8 +361,8 @@ internal val VIEWCHILD_TS = """
 @Component({
   selector: 'app-reader',
   template: `<input #box value="Try me">
-             <button (click)="read()">Read</button>
-             <p>{{ value }}</p>`,
+             <button mat-raised-button color="primary" (click)="read()">Read DOM value</button>
+             <p *ngIf="value">You wrote: {{ value }}</p>`,
 })
 export class ReaderComponent {
   @ViewChild('box') box!: ElementRef<HTMLInputElement>;
@@ -327,8 +377,8 @@ internal val VIEWCHILD_KT = """
     selector = "app-reader",
     template = $TQ
         <input #box value='Try me'>
-        <button (click)='read()'>Read</button>
-        <p>{{value}}</p>
+        <button mat-raised-button color='primary' (click)='read()'>Read DOM value</button>
+        <p *ngIf='value'>You wrote: {{value}}</p>
     $TQ,
 )
 class ReaderComponent {
@@ -341,50 +391,81 @@ class ReaderComponent {
 """.trim()
 
 internal val COROUTINES_TS = """
-@Component({ selector: 'app-clock', template: `{{ elapsed }}` })
-export class ClockComponent implements OnInit, OnDestroy {
-  elapsed = 0;
+@Component({
+  selector: 'app-ticker',
+  template: `<p>{{ display }}</p>
+             <button (click)="toggle()">{{ running ? 'Pause' : 'Start' }}</button>
+             <button (click)="reset()">Reset</button>`,
+})
+export class TickerComponent implements OnInit, OnDestroy {
+  elapsed = 0;              // tenths of a second
+  running = false;
   private sub?: Subscription;
 
+  get display() { return (this.elapsed / 10).toFixed(1) + ' s'; }
+
   ngOnInit() {
-    this.sub = interval(100).subscribe(() => this.elapsed++);
+    this.sub = interval(100).subscribe(() => { if (this.running) this.elapsed++; });
   }
   ngOnDestroy() { this.sub?.unsubscribe(); }
+
+  toggle() { this.running = !this.running; }
+  reset() { this.running = false; this.elapsed = 0; }
 }
 """.trim()
 
 internal val COROUTINES_KT = """
 @JsExport
-@Component(selector = "app-clock", template = "{{elapsed}}")
-class ClockComponent : OnInit {
-    var elapsed = 0
+@Component(
+    selector = "app-ticker",
+    template = $TQ
+        <p>{{display}}</p>
+        <button (click)='toggle()'>{{ running ? 'Pause' : 'Start' }}</button>
+        <button (click)='reset()'>Reset</button>
+    $TQ,
+)
+class TickerComponent : OnInit {
+    var elapsed = 0          // tenths of a second
+    var running = false
 
     // scoped to the component — auto-cancels on destroy, no ngOnDestroy
-    private val scope = LifecycleScope()
+    private val lifecycle = LifecycleScope()
+
+    val display get() = (elapsed / 10.0).toString() + " s"
 
     override fun ngOnInit() {
-        scope.launch {
-            while (true) { delay(100); elapsed++ }
+        lifecycle.launch {
+            while (true) { delay(100); if (running) elapsed++ }
         }
     }
+
+    fun toggle() { running = !running }
+    fun reset() { running = false; elapsed = 0 }
 }
 """.trim()
 
 internal val FORMS_TS = """
 @Component({
   selector: 'app-form',
-  template: `<input [formControl]="name">
-             <p>{{ message }}</p>`,
+  template: `<input [formControl]="nameControl" placeholder="Type your name">
+             <p>{{ message }}</p>
+             <p>{{ count }} character(s)</p>
+             <button mat-raised-button color="primary" (click)="clear()">Clear</button>`,
 })
 export class FormComponent implements OnInit {
-  name = new FormControl('');
-  message = '';
+  nameControl = new FormControl('');
+  message = 'Start typing above…';
+  count = 0;
 
   ngOnInit() {
-    this.name.valueChanges.subscribe(v => {
-      this.message = v ? 'Hello, ' + v + '!' : '';
+    this.nameControl.valueChanges.subscribe(value => {
+      const text = value ?? '';
+      this.count = text.length;
+      this.message = text ? `Hello, ${'$'}{text}! 👋` : 'Start typing above…';
     });
   }
+
+  clear() { this.nameControl.setValue(''); }
 }
 """.trim()
 
@@ -392,21 +473,31 @@ internal val FORMS_KT = """
 @JsExport
 @Component(
     selector = "app-form",
-    template = "<input [formControl]='name'><p>{{message}}</p>",
+    template = $TQ
+        <input [formControl]='nameControl' placeholder='Type your name'>
+        <p>{{message}}</p>
+        <p>{{count}} character(s)</p>
+        <button mat-raised-button color='primary' (click)='clear()'>Clear</button>
+    $TQ,
 )
 class FormComponent : OnInit {
-    val name = FormControl("")
-    var message = ""
-    private val scope = LifecycleScope()
+    val nameControl = FormControl("")
+    var message = "Start typing above…"
+    var count = 0
+    private val lifecycle = LifecycleScope()
 
     override fun ngOnInit() {
-        scope.launch {
+        lifecycle.launch {
             // valueChanges (an RxJS Observable) consumed as a Kotlin Flow
-            name.valueChanges.asFlow().collect { v ->
-                message = if (v.isNullOrBlank()) "" else "Hello, " + v + "!"
+            nameControl.valueChanges.asFlow().collect { value ->
+                val text = "${'$'}value"
+                count = text.length
+                message = if (text.isBlank()) "Start typing above…" else "Hello, ${'$'}text! 👋"
             }
         }
     }
+
+    fun clear() { nameControl.setValue("") }
 }
 """.trim()
 
@@ -414,51 +505,155 @@ internal val KTOR_TS = """
 @Injectable({ providedIn: 'root' })
 export class TodoService {
   constructor(private http: HttpClient) {}
-
-  load(): Observable<Todo[]> {
-    return this.http.get<Todo[]>('/todos');
+  fetchTodos(limit: number): Observable<Todo[]> {
+    return this.http.get<Todo[]>('/todos?_limit=' + limit);
   }
+}
+
+@Component({
+  selector: 'app-ktor',
+  template: `<p *ngIf="loading">Loading…</p>
+             <li *ngFor="let t of items" (click)="toggle(t)">
+               {{ t.done ? '☑' : '☐' }} {{ t.title }}
+             </li>
+             <input #box (keyup.enter)="add(box.value)">
+             <button (click)="add(box.value)">Add</button>`,
+})
+export class KtorComponent implements OnInit {
+  loading = true;
+  items: TaskItem[] = [];
+  constructor(private todos: TodoService) {}
+
+  ngOnInit() {
+    this.todos.fetchTodos(4).subscribe(todos => {
+      this.items = todos.map(t => ({ title: t.title, done: t.completed }));
+      this.loading = false;
+    });
+  }
+
+  toggle(item: TaskItem) { item.done = !item.done; }
+  add(title: string) { this.items.push({ title, done: false }); }
 }
 """.trim()
 
 internal val KTOR_KT = """
+@Serializable
+data class Todo(val title: String, val completed: Boolean)
+
+class TaskItem(val title: String, var done: Boolean)
+
 @JsExport
 @Injectable(providedIn = "root")
 class TodoService {
     private val client = HttpClient(Js)
+    private val json = Json { ignoreUnknownKeys = true }
 
-    // a plain suspend function + kotlinx.serialization — no Observable.
-    // Note: @JsExport can't export a suspend fun
-    internal suspend fun load(): List<Todo> =
-        client.get("/todos").body()
+    // a plain suspend function; kotlinx.serialization decodes the JSON — no Observable
+    internal suspend fun fetchTodos(limit: Int): List<Todo> {
+        val body = client.get("/todos?_limit=" + limit).bodyAsText()
+        return json.decodeFromString(ListSerializer(Todo.serializer()), body)
+    }
+}
+
+@JsExport
+@Component(
+    selector = "app-ktor",
+    template = $TQ
+        <p *ngIf='loading'>Loading…</p>
+        <li *ngFor='let t of items' (click)='toggle(t)'>
+            {{ t.done ? '☑' : '☐' }} {{t.title}}
+        </li>
+        <input #box (keyup.enter)='add(box.value)'>
+        <button (click)='add(box.value)'>Add</button>
+    $TQ,
+)
+class KtorComponent(private val todos: TodoService) : OnInit {
+    private val lifecycle = LifecycleScope()
+    var loading = true
+    var items: Array<TaskItem> = arrayOf()
+
+    override fun ngOnInit() {
+        lifecycle.launch {
+            items = todos.fetchTodos(4)
+                .map { TaskItem(it.title, it.completed) }
+                .toTypedArray()
+            loading = false
+        }
+    }
+
+    fun toggle(item: TaskItem) { item.done = !item.done }
+    fun add(title: String) { items += TaskItem(title, false) }
 }
 """.trim()
 
 internal val HTTP_TS = """
-@Component({ selector: 'app-tip', template: `{{ tip }}` })
-export class TipComponent {
-  tip = '';
+@Injectable({ providedIn: 'root' })
+export class TodoService {
   constructor(private http: HttpClient) {}
+  fetch(id: number) {
+    return this.http.get<Todo>('https://jsonplaceholder.typicode.com/todos/' + id);
+  }
+}
+
+@Component({
+  selector: 'app-http',
+  template: `<p>💡 {{ tip }}</p>
+             <button [disabled]="loading" (click)="another()">
+               {{ loading ? 'Loading…' : 'Another tip' }}
+             </button>`,
+})
+export class HttpComponent implements OnInit {
+  tip = '…';
+  loading = false;
+  constructor(private api: TodoService) {}
+
+  ngOnInit() { this.another(); }
 
   another() {
-    this.http.get<Todo>('/todos/' + rand())
-      .subscribe(t => this.tip = t.title);
+    if (this.loading) return;
+    this.loading = true;
+    const id = 1 + Math.floor(Math.random() * 199);
+    this.api.fetch(id).subscribe(t => {
+      this.tip = t.title;
+      this.loading = false;
+    });
   }
 }
 """.trim()
 
 internal val HTTP_KT = """
 @JsExport
-@Component(selector = "app-tip", template = "{{tip}}")
-class TipComponent(private val http: HttpClient) {
-    var tip = ""
-    private val scope = LifecycleScope()
+@Injectable(providedIn = "root")
+class TodoService(private val http: HttpClient) {
+    // Angular's one-shot Observable, awaited as a coroutine
+    suspend fun fetch(id: Int): Todo =
+        http.get<Todo>("https://jsonplaceholder.typicode.com/todos/" + id).await()
+}
+
+@JsExport
+@Component(
+    selector = "app-http",
+    template = $TQ
+        <p>💡 {{tip}}</p>
+        <button [disabled]='loading' (click)='another()'>
+            {{ loading ? 'Loading…' : 'Another tip' }}
+        </button>
+    $TQ,
+)
+class HttpComponent(private val api: TodoService) : OnInit {
+    private val lifecycle = LifecycleScope()
+    var tip = "…"
+    var loading = false
+
+    override fun ngOnInit() { another() }
 
     fun another() {
-        scope.launch {
-            // Angular's HttpClient Observable, awaited as a coroutine
-            val todo = http.get<Todo>("/todos/" + rand()).await()
-            tip = todo.title
+        if (loading) return
+        loading = true
+        val id = Random.nextInt(1, 200)
+        lifecycle.launch {
+            tip = api.fetch(id).title.replaceFirstChar { it.uppercase() }
+            loading = false
         }
     }
 }
@@ -509,38 +704,73 @@ class BranchComponent
 """.trim()
 
 internal val LIFECYCLE_TS = """
+// child: OnPush is re-checked only when its @Input changes; ngOnChanges then fires
 @Component({
   selector: 'app-onpush',
-  templateUrl: './onpush.component.html',
+  template: `<p>count = {{ count }}</p>
+             <p>ngOnChanges fired {{ changes }}× · last: {{ lastDelta }}</p>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
 })
 export class OnPushComponent implements OnChanges {
   @Input() count = 0;
+  changes = 0;
+  lastDelta = '—';
 
   ngOnChanges(changes: SimpleChanges) {
+    this.changes++;
     const c = changes['count'];
-    // react to the input change (the alternative to a property setter)
+    this.lastDelta = c ? c.previousValue + ' → ' + c.currentValue : '—';
   }
+}
+
+// parent: bumping count changes the child's @Input
+@Component({
+  selector: 'app-lifecycle',
+  template: `<button (click)="bump()">Change @Input → count = {{ count }}</button>
+             <app-onpush [count]="count"></app-onpush>`,
+})
+export class LifecycleComponent {
+  count = 0;
+  bump() { this.count++; }
 }
 """.trim()
 
 internal val LIFECYCLE_KT = """
+// child: OnPush is re-checked only when its @Input changes; ngOnChanges then fires
 @JsExport
 @Component(
     selector = "app-onpush",
-    templateUrl = "./onpush.component.html",
+    template = $TQ
+        <p>count = {{count}}</p>
+        <p>ngOnChanges fired {{changes}}× · last: {{lastDelta}}</p>
+    $TQ,
     changeDetection = ChangeDetectionStrategy.OnPush,
-    encapsulation = ViewEncapsulation.None,
 )
 class OnPushComponent : OnChanges {
     @Input
     var count: Int = 0
+    var changes = 0
+    var lastDelta = "—"
 
     override fun ngOnChanges(changes: SimpleChanges) {
+        this.changes++
         val c = changes["count"]  // SimpleChanges.get operator
-        // react to the input change (the alternative to a property setter)
+        lastDelta = c?.let { "${'$'}{it.previousValue} → ${'$'}{it.currentValue}" } ?: "—"
     }
+}
+
+// parent: bumping count changes the child's @Input
+@JsExport
+@Component(
+    selector = "app-lifecycle",
+    template = $TQ
+        <button (click)='bump()'>Change @Input → count = {{count}}</button>
+        <app-onpush [count]='count'></app-onpush>
+    $TQ,
+)
+class LifecycleComponent {
+    var count = 0
+    fun bump() { count++ }
 }
 """.trim()
 

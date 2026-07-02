@@ -18,15 +18,16 @@ import at.angular.platformBrowser.SafeHtml
 )
 class SanitizerComponent(sanitizer: DomSanitizer) {
 
-    private val glyph = """
-        <svg viewBox="0 0 24 24" width="44" height="44" aria-hidden="true">
+    /** The markup both boxes receive. */
+    private val svg: String = """
+        <svg viewBox="0 0 24 24" width="48" height="48" aria-hidden="true">
           <path fill="#7c4dff" d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4z"/>
         </svg>
     """.trimIndent()
 
     /** Raw string — Angular's sanitizer drops the `<svg>`, so nothing shows. */
-    val raw: String = glyph
+    val raw: String = svg
 
     /** Trusted — survives sanitization and renders. */
-    val safe: SafeHtml = sanitizer.bypassSecurityTrustHtml(glyph)
+    val safe: SafeHtml = sanitizer.bypassSecurityTrustHtml(svg)
 }
