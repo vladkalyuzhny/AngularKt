@@ -18,7 +18,7 @@ angularKt {
         //   unset → classic module `bootstrapModule(<the @NgModule with bootstrap=[…]>)`
         // AOT-only: the AOT entry is generated, so the root's identity must live in this DSL knob where
         // KSP can read it.
-        // The JIT entry (src/jsJit/kotlin/main.kt) is hand-written, so it needs no
+        // The JIT entry (`main` in src/jsMain/kotlin/main.kt) is hand-written, so it needs no
         // equivalent — you pick the bootstrap style directly in that file.
         bootstrapComponent.set("app.RootComponent")
         // Angular Material's prebuilt theme — without it Material components and the app's own
@@ -33,9 +33,9 @@ angularKt {
 kotlin {
     sourceSets {
         val jsMain by getting {
-            // The two modes bootstrap differently, each with its own entry + root, kept in a
-            // mode-specific source dir wired in only for that mode (jsMain holds the shared code)
-            kotlin.srcDir(if (angularConfig.isAot) "src/jsAot/kotlin" else "src/jsJit/kotlin")
+            // Both bootstrap entries (JIT `main`, AOT `mainAot`) live in the shared source set — see
+            // src/jsMain/kotlin/main.kt. The active build picks one: JIT (executable) auto-runs `main`;
+            // AOT (library) has its generated `main.ts` call `mainAot`.
             dependencies {
                 // AngularKt runtime.
                 implementation(project(":lib"))

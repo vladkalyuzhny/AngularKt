@@ -31,6 +31,14 @@ internal fun Project.configureKotlinJsAndKsp(config: AngularKtConfig, extension:
             if (config.isAot) {
                 generateTypeScriptDefinitions()
                 binaries.library()
+                // Kotlin/JS auto-invokes a zero-arg `fun main()` when the module loads — even for a
+                // library. In AOT the generated main.ts imports the library to call the exported AOT
+                // entry (`mainAot`), which would also fire the shared JIT `fun main()` on import. Suppress
+                // that call so the JIT entry stays dead code (esbuild then tree-shakes it and its
+                // `@angular/platform-browser-dynamic` dynamic import out of the AOT bundle).
+                compilerOptions {
+                    freeCompilerArgs.addAll("-main", "noCall")
+                }
             } else {
                 binaries.executable()
             }

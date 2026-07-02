@@ -34,12 +34,29 @@ class AotCodegen(
     override fun generate(model: AngularModel) {
         val resolver = TsRefResolver(model.ownClasses, tsModule, externalModules)
         writeMainEntry(model)
+        writeNoopRegistration(model)
         model.ngDeclarations.forEach { declaration ->
             val view = bridgeFor(declaration, resolver, profile).createView()
             write(declaration.simpleName, listOfNotNull(declaration.containingFile), aggregating = true) {
                 renderer.render(view.templateName, view)
             }
         }
+    }
+
+    /**
+     * Emits an empty `at.angular.generated.registerAngularKt()`. The JIT codegen fills this with the
+     * `registerX(...)` manifest; AOT bakes the decorators into the `.ts` bridges instead, so the body is
+     * empty. It's generated only so a shared entry point calling `registerAngularKt()` (the JIT `main()`)
+     * compiles in the AOT library build, where that call is never reached.
+     */
+    private fun writeNoopRegistration(model: AngularModel) {
+        val sources = model.ngDeclarations.mapNotNull { it.containingFile }.distinct().toTypedArray()
+        val output = codeGenerator.createNewFile(
+            dependencies = Dependencies(aggregating = true, *sources),
+            packageName = "at.angular.generated",
+            fileName = "AngularKtRegistration",
+        )
+        OutputStreamWriter(output, Charsets.UTF_8).use { it.write(renderer.render("registration.kt", emptyMap<String, Any>())) }
     }
 
     /**

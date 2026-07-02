@@ -64,7 +64,7 @@ class AppModule
 """.trim()
 
 private val JIT_ENTRY = """
-// src/jsJit/kotlin/main.kt — classic platformBrowserDynamic bootstrap, the textbook JIT path
+// src/jsMain/kotlin/main.kt — the JIT entry: classic platformBrowserDynamic bootstrap, the textbook path
 fun main() {
     registerAngularKt()  // KSP-generated: applies your @Component/@NgModule decorators
     platformBrowserDynamic(undefined).bootstrapModule(AppModule::class.js)
@@ -72,9 +72,9 @@ fun main() {
 """.trim()
 
 private val AOT_ENTRY = """
-// src/jsAot/kotlin/main.kt — standalone bootstrapApplication; the generated main.ts is a thin shim that calls it
+// src/jsMain/kotlin/main.kt — the AOT entry: standalone bootstrapApplication; the generated main.ts calls it
 @JsExport
-fun main(root: JsClass<*>, providers: Array<EnvironmentProviders>) {
+fun mainAot(root: JsClass<*>, providers: Array<EnvironmentProviders>) {
     // your own (non-Angular) startup code here — runs in AOT
     bootstrapApplication(root, jsObject { this.providers = appProviders() + providers })
 }
